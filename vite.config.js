@@ -1,7 +1,10 @@
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 
+const buildBase = '/proyectodemo/';
+
 export default defineConfig({
+    base: process.env.NODE_ENV === 'production' ? buildBase : '/',
     plugins: [
         laravel({
             input: [

@@ -13,7 +13,11 @@
                         <p>Dashboard</p>
                     </a>
                 </li>
-
+                <li class="nav-item">
+                    <a href="{{ route('cliente_empresa.index') }}" class="nav-link">
+                        Listado de Clientes
+                    </a>
+                </li>
                 @role('admin')
                 <li class="nav-item">
                     <a href="{{ route('users.index') }}" class="nav-link">

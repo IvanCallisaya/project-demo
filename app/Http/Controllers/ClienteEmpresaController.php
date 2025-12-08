@@ -38,7 +38,7 @@ class ClienteEmpresaController extends Controller
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
             'telefono' => $request->telefono,
-            'empresa_id' => $request->empresa_id,
+            'empresa_id' => 1,
             'imagen' => $rutaImagen, // Se guarda la ruta
         ]);
 

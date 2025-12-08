@@ -66,8 +66,6 @@
         <div class="row mt-2">
             <div class="col-md-4">
                 <label>Nombre</label>
-                <!-- Quitamos 'required' aquí. Se añade por JS al clonar. -->
-                <!-- Cambiamos name="contactos[nombre][]" por name="contactos[{index}][nombre]" -->
                 <input type="text" name="contactos[{index}][nombre]" class="form-control contacto-nombre">
             </div>
 

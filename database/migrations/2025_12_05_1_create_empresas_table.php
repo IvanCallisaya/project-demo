@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('empresa', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_comercial'); // Nombre corto o de fantasía
-            $table->string('razon_social')->nullable(); // Nombre legal (Opcional, si no siempre aplica)
-            $table->string('nit')->unique(); // Número de Identificación Tributaria, debe ser único
+            $table->string('nombre_comercial'); //
+            $table->string('razon_social')->nullable(); 
+            $table->string('nit')->unique(); 
             $table->string('direccion')->nullable();
             $table->string('telefono')->nullable();
-            $table->timestamps(); // Crea las columnas created_at y updated_at
+            $table->timestamps(); 
         });
     }
 

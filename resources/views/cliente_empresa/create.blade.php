@@ -4,15 +4,17 @@
 
 @section('content')
 <div class="container-fluid">
+    <h1>Nuevo Cliente</h1>
     <form method="POST" action="{{ route('cliente_empresa.store') }}" enctype="multipart/form-data" id="formCliente">
-        @csrf
 
+        @csrf
+        <div class="mt-3">
+            <a href="{{ route('cliente_empresa.index') }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Cancelar</a>
+            <button class="btn btn-primary"><i class="fa fa-save"></i> Guardar</button>
+        </div>
         @include('cliente_empresa.form-blade-fields', ['cliente' => null])
 
-        <div class="mt-3">
-            <a href="{{ route('cliente_empresa.index') }}" class="btn btn-secondary">Cancelar</a>
-            <button class="btn btn-primary">Guardar</button>
-        </div>
+
     </form>
 </div>
 @endsection

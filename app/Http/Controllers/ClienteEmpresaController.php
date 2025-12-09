@@ -9,12 +9,22 @@ use Illuminate\Support\Facades\Log;
 
 class ClienteEmpresaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $empresas = ClienteEmpresa::with('contactos')->get();
-        return view('cliente_empresa.index', compact('empresas'));
-    }
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 10);
 
+        $empresas = ClienteEmpresa::with('contactos')
+            ->when($search, function ($q) use ($search) {
+                $q->where('nombre', 'like', "%$search%")
+                    ->orWhere('telefono_principal', 'like', "%$search%");
+            })
+            ->orderBy('id', 'desc')
+            ->paginate($perPage)
+            ->appends(['search' => $search, 'per_page' => $perPage]);
+
+        return view('cliente_empresa.index', compact('empresas', 'search', 'perPage'));
+    }
     public function create()
     {
         return view('cliente_empresa.create');
@@ -37,9 +47,11 @@ class ClienteEmpresaController extends Controller
         $empresa = ClienteEmpresa::create([
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
-            'telefono' => $request->telefono,
-            'empresa_id' => 1,
-            'imagen' => $rutaImagen, // Se guarda la ruta
+            'nombre_contacto_principal'=> $request->nombre_contacto_principal,
+            'email_principal'=> $request->email_principal,
+            'telefono_principal'=> $request->telefono_principal,
+            'empresa_id' => $request->empresa_id,
+            'imagen' => $rutaImagen,
         ]);
 
         // Contactos
@@ -78,7 +90,7 @@ class ClienteEmpresaController extends Controller
             $empresa->imagen = $rutaNueva;
         }
 
-        $empresa->update($request->only(['nombre', 'direccion', 'telefono', 'empresa_id']));
+        $empresa->update($request->only(['nombre', 'direccion', 'telefono', 'empresa_id', 'nombre_contacto_principal', 'email_principal', 'telefono_principal']));
 
         // Actualizar contactos
         $empresa->contactos()->delete();

@@ -12,7 +12,9 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->string('direccion')->nullable();
-            $table->string('telefono')->nullable();
+            $table->string('nombre_contacto_principal')->nullable();
+            $table->string('email_principal')->nullable();
+            $table->string('telefono_principal')->nullable();
             $table->foreignId('empresa_id')->nullable()->constrained('empresa');
             $table->string('imagen')->nullable();
             $table->timestamps();

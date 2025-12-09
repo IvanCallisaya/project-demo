@@ -4,16 +4,17 @@
 
 @section('content')
 <div class="container-fluid">
+    <h1>Editar Cliente</h1>
     <form method="POST" action="{{ route('cliente_empresa.update', $cliente_empresa->id) }}" enctype="multipart/form-data" id="formCliente">
         @csrf
         @method('PUT')
-
-        @include('cliente_empresa.form-blade-fields', ['cliente' => $cliente_empresa])
-
-        <div class="mt-3">
+        <div class="mb-3 mt-3">
             <a href="{{ route('cliente_empresa.index') }}" class="btn btn-secondary">Cancelar</a>
             <button class="btn btn-primary">Guardar cambios</button>
         </div>
+        @include('cliente_empresa.form-blade-fields', ['cliente' => $cliente_empresa])
+
+
     </form>
 </div>
 @endsection

@@ -22,7 +22,7 @@ class ClienteEmpresaController extends Controller
             ->orderBy('id', 'desc')
             ->paginate($perPage)
             ->appends(['search' => $search, 'per_page' => $perPage]);
-
+        Log::info("Empresas encontradas: " . $empresas->toJson());
         return view('cliente_empresa.index', compact('empresas', 'search', 'perPage'));
     }
     public function create()
@@ -50,7 +50,7 @@ class ClienteEmpresaController extends Controller
             'nombre_contacto_principal'=> $request->nombre_contacto_principal,
             'email_principal'=> $request->email_principal,
             'telefono_principal'=> $request->telefono_principal,
-            'empresa_id' => $request->empresa_id,
+            'empresa_id' => 1,
             'imagen' => $rutaImagen,
         ]);
 
@@ -90,7 +90,7 @@ class ClienteEmpresaController extends Controller
             $empresa->imagen = $rutaNueva;
         }
 
-        $empresa->update($request->only(['nombre', 'direccion', 'telefono', 'empresa_id', 'nombre_contacto_principal', 'email_principal', 'telefono_principal']));
+        $empresa->update($request->only(['nombre', 'direccion', 'telefono', 'nombre_contacto_principal', 'email_principal', 'telefono_principal']));
 
         // Actualizar contactos
         $empresa->contactos()->delete();

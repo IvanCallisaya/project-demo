@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ClienteEmpresaController;
+use App\Http\Controllers\LaboratorioController;
+use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +26,8 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::resource('cliente_empresa', ClienteEmpresaController::class);
+Route::resource('laboratorio', LaboratorioController::class);
+Route::resource('producto', ProductoController::class);
 
 
 Route::middleware('auth')->group(function () {

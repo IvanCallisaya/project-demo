@@ -18,6 +18,18 @@
                         Clientes
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('laboratorio.index') }}" class="nav-link">
+                        <i class="fa-solid fa-flask-vial"></i>
+                        Laboratorios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('producto.index') }}" class="nav-link">
+                        <i class="fas fa-boxes"></i>
+                        Productos
+                    </a>
+                </li>
                 @role('admin')
                 <li class="nav-item">
                     <a href="{{ route('users.index') }}" class="nav-link">

@@ -9,19 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up()
-{
-    Schema::create('laboratorio_producto', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('laboratorio_id')->nullable()->constrained('laboratorio');
-        $table->foreignId('producto_id')->nullable()->constrained('producto');
-        $table->integer('stock')->nullable();
-        $table->string('lote')->nullable();
-        $table->date('costo_analisis')->nullable();
-        $table->date('tiempo_entrega')->nullable();
-        $table->timestamps();
-    });
-}
+    public function up()
+    {
+        Schema::create('laboratorio_producto', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('laboratorio_id')->nullable()->constrained('laboratorio');
+            $table->foreignId('producto_id')->nullable()->constrained('producto');
+            $table->decimal('costo_analisis', 10, 2)->nullable();
+            $table->integer('tiempo_entrega_dias')->nullable(); // en días
+            $table->boolean('estado')->default(true);
+            $table->timestamps();
+        });
+    }
 
 
     /**

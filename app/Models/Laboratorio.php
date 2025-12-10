@@ -31,7 +31,7 @@ class Laboratorio extends Model
         public function productos()
     {
         return $this->belongsToMany(Producto::class, 'laboratorio_producto')
-                    ->withPivot(['stock','lote','costo_analisis','tiempo_entrega'])
+                    ->withPivot(['id','costo_analisis','tiempo_entrega_dias','estado','laboratorio_id','producto_id'])
                     ->withTimestamps();
     }
 }

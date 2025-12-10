@@ -30,6 +30,12 @@
                         Productos
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('subcategoria.index') }}" class="nav-link">
+                        <i class="fas fa-tags"></i>
+                        Subcategorías
+                    </a>
+                </li>
                 @role('admin')
                 <li class="nav-item">
                     <a href="{{ route('users.index') }}" class="nav-link">

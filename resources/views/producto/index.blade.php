@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Productos')
 @section('content')
-<h1>Productos</h1>
+
 <div class="container-fluid">
+    <h1>Productos</h1>
+    <div class="card">
         <div class="card-header">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2">
 
@@ -30,13 +32,13 @@
             </div>
         </div>
         <div class="card-body table-responsive">
-            <table class="table table-striped table-bordered">
-                <thead>
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
                     <tr>
                         <th>Código</th>
                         <th>Nombre</th>
-                        <th>Unidad</th>
-                        <th>Precio</th>
+                        <th>Unidad Medida</th>
+                        <th>Subcategoria</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -45,8 +47,8 @@
                     <tr>
                         <td>{{ $p->codigo }}</td>
                         <td>{{ $p->nombre }}</td>
-                        <td>{{ $p->unidad }}</td>
-                        <td>{{ $p->precio }}</td>
+                        <td>{{ $p->unidad_medida }}</td>
+                        <td>{{ $p->subcategoria->nombre }}</td>
                         <td>
                             <a href="{{ route('producto.edit',$p->id) }}" class="btn btn-sm btn-warning">Editar</a>
                             <form method="POST" action="{{ route('producto.destroy',$p->id) }}" style="display:inline">@csrf @method('DELETE')<button class="btn btn-sm btn-danger">Eliminar</button></form>
@@ -63,4 +65,5 @@
         </div>
     </div>
 </div>
+
 @endsection

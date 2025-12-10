@@ -11,7 +11,7 @@ class Producto extends Model
     protected $fillable = [
         'nombre',
         'codigo',
-        'categoria',
+        'subcategoria_id',
         'unidad_medida',
         'descripcion'
     ];
@@ -19,7 +19,11 @@ class Producto extends Model
     public function laboratorios()
     {
         return $this->belongsToMany(Laboratorio::class, 'laboratorio_producto')
-                    ->withPivot(['stock','lote','costo_analisis','tiempo_entrega'])
+                    ->withPivot(['id','costo_analisis','tiempo_entrega_dias','estado'])
                     ->withTimestamps();
+    }
+    public function subcategoria()
+    {
+        return $this->belongsTo(SubCategoria::class);
     }
 }

@@ -106,8 +106,9 @@
                 </tbody>
             </table>
 
-            <div class="mt-3">
-                {{ $empresas->links() }}
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div>Mostrando {{ $empresas->firstItem() ?? 0 }} - {{ $empresas->lastItem() ?? 0 }} de {{ $empresas->total() }}</div>
+                <div>{{ $empresas->links() }}</div>
             </div>
 
         </div>

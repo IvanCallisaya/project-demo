@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Laboratorio;
 use App\Models\ClienteEmpresa;
+use App\Models\LaboratorioProducto;
+use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -103,5 +105,98 @@ class LaboratorioController extends Controller
         $laboratorio->delete();
         return redirect()->route('cliente_empresa.laboratorios.index', $clienteId)
             ->with('success', 'Laboratorio eliminado.');
+    }
+    public function attachProducto(Request $request, Laboratorio $laboratorio)
+    {
+        // 1. Validación de campos Pivot
+        $request->validate([
+            'costo_analisis' => 'nullable|decimal:0,2',
+            'tiempo_entrega_dias' => 'nullable|integer',
+        ]);
+
+        // 2. Preparar los datos Pivot
+        $pivotData = [
+            'costo_analisis' => $request->costo_analisis,
+            'tiempo_entrega_dias' => $request->tiempo_entrega_dias,
+        ];
+
+        try {
+            // 3. Adjuntar (Attach) el producto con los datos pivot
+            // Usamos syncWithoutDetaching para evitar perder otros productos
+            // Si ya existe, se actualizará el pivot.
+            $laboratorio->productos()->attach($request->producto_id, $pivotData);
+
+            return redirect()->route('laboratorio.show', $laboratorio)
+                ->with('success', 'Producto asignado y datos de inventario guardados correctamente.');
+        } catch (\Exception $e) {
+            // En caso de error (ej: si ya está adjunto y no deseas actualizar, podrías usar attach([], false))
+            Log::error("Error al asignar producto al laboratorio: " . $e->getMessage());
+            return redirect()->route('laboratorio.show', $laboratorio)
+                ->with('error', 'Error al asignar el producto.');
+        }
+    }
+
+    /**
+     * Remueve un producto del laboratorio.
+     * Ruta: DELETE /laboratorio/{laboratorio}/producto/detach/{producto}
+     */
+    // Ahora recibe LaboratorioProducto $pivotRecord
+    public function detachProducto(Laboratorio $laboratorio, LaboratorioProducto $pivotRecord)
+    {
+        // Verificamos que el registro pivot pertenezca al laboratorio correcto (Seguridad)
+        if ($pivotRecord->laboratorio_id !== $laboratorio->id) {
+            return redirect()->back()->with('error', 'Registro de inventario no válido.');
+        }
+
+        // Usamos el método delete() del modelo para eliminar la fila específica.
+        $pivotRecord->delete();
+
+        return redirect()->route('laboratorio.show', $laboratorio)
+            ->with('success', 'Elemento de inventario removido del laboratorio.');
+    }
+
+    // 2. EDITAR PIVOT (Mostrar Formulario)
+    // Ahora recibe LaboratorioProducto $pivotRecord
+    public function editPivot($laboratorio_id, $pivotRecord)
+    {
+        // Verificamos que el registro pivot pertenezca al laboratorio correcto
+        $laboratorio = Laboratorio::findOrFail($laboratorio_id);
+        $pivotRecord = LaboratorioProducto::findOrFail($pivotRecord);
+        if ($pivotRecord->laboratorio_id !== $laboratorio->id) {
+            return redirect()->back()->with('error', 'Registro de inventario no válido.');
+        }
+
+        // El modelo pivot $pivotRecord ya tiene todos los datos (stock, lote, etc.)
+        // También necesitamos el modelo Producto para el título y detalles.
+        $producto = $pivotRecord->producto;
+
+        // Nota: El nombre de la vista de blade sigue siendo 'laboratorio.edit_pivot'
+        return view('laboratorio.edit_pivot', compact('laboratorio', 'producto', 'pivotRecord'));
+    }
+
+    // 3. ACTUALIZAR PIVOT (Guardar)
+    // Ahora recibe LaboratorioProducto $pivotRecord
+    public function updatePivot(Request $request, Laboratorio $laboratorio, LaboratorioProducto $pivotRecord)
+    {
+        // Verificación de seguridad
+        if ($pivotRecord->laboratorio_id !== $laboratorio->id) {
+            return redirect()->back()->with('error', 'Registro de inventario no válido.');
+        }
+
+        $request->validate([
+            'costo_analisis' => 'nullable|decimal:0,2',
+            'tiempo_entrega_dias' => 'nullable|integer',
+        ]);
+
+        $pivotData = [
+            'costo_analisis' => $request->costo_analisis,
+            'tiempo_entrega_dias' => $request->tiempo_entrega_dias,
+        ];
+
+        // Usamos el método update() del modelo pivot
+        $pivotRecord->update($pivotData);
+
+        return redirect()->route('laboratorio.show', $laboratorio)
+            ->with('success', 'Elemento de inventario actualizado correctamente.');
     }
 }

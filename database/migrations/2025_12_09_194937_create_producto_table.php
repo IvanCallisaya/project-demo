@@ -14,9 +14,10 @@ public function up()
     Schema::create('producto', function (Blueprint $table) {
         $table->id();
         $table->string('nombre');
+        $table->foreignId('subcategoria_id')->nullable()->constrained('subcategoria');
         $table->string('codigo')->nullable();
-        $table->string('descripcion')->nullable();
         $table->string('unidad_medida')->nullable();
+        $table->string('descripcion')->nullable();
         $table->timestamps();
     });
 }

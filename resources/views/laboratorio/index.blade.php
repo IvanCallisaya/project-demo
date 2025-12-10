@@ -3,8 +3,8 @@
 @section('title','Laboratorios')
 
 @section('content')
-<h1>Laboratorios</h1>
 <div class="container-fluid">
+    <h1>Laboratorios</h1>
     <div class="card">
         <div class="card-header">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2">
@@ -34,8 +34,8 @@
         </div>
 
         <div class="card-body table-responsive">
-            <table class="table table-striped table-bordered">
-                <thead>
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
                     <tr>
                         <th>Nombre</th>
                         <th>Productos</th>
@@ -50,8 +50,8 @@
                         <td>{{ $lab->productos_count }}</td>
                         <td>{{ $lab->telefono }}</td>
                         <td style="white-space:nowrap">
-                            <a href="{{ route('laboratorio.show',$lab->id) }}" class="btn btn-sm btn-info"><i class="fa-regular fa-pen-to-square" style="color:white"></i></a>
-                            <a href="{{ route('laboratorio.edit',$lab->id) }}" class="btn btn-sm btn-warning"><i class="fa-regular fa-eye" style="color: white;"></i></a>
+                            <a href="{{ route('laboratorio.show',$lab->id) }}" class="btn btn-sm btn-info"><i class="fa-regular fa-eye" style="color:white"></i></a>
+                            <a href="{{ route('laboratorio.edit',$lab->id) }}" class="btn btn-sm btn-warning"><i class="fa-regular fa-pen-to-square" style="color: white;"></i></a>
                             <form action="{{ route('laboratorio.destroy',$lab->id) }}"
                                 method="POST"
                                 style="display:inline">

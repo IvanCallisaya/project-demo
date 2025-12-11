@@ -28,10 +28,11 @@ class Laboratorio extends Model
     {
         return $this->belongsTo(ClienteEmpresa::class, 'cliente_empresa_id');
     }
-        public function productos()
+    public function productos()
     {
         return $this->belongsToMany(Producto::class, 'laboratorio_producto')
-                    ->withPivot(['id','costo_analisis','tiempo_entrega_dias','estado','laboratorio_id','producto_id'])
-                    ->withTimestamps();
+            ->using(LaboratorioProducto::class) // <-- ¡ESTA ES LA LÍNEA QUE FALTA!
+            ->withPivot(['id', 'costo_analisis', 'tiempo_entrega_dias', 'estado', 'laboratorio_id', 'producto_id', 'fecha_entrega'])
+            ->withTimestamps();
     }
 }

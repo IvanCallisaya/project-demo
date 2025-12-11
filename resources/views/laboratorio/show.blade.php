@@ -67,10 +67,11 @@
                 <thead>
                     <tr>
                         <th>Producto</th>
-                        <th>Unidad de medida</th>
+                        <th>U.de medida</th>
                         <th>Codigo</th>
                         <th>Costo Analisis</th>
                         <th>Tiempo Entrega (Días)</th>
+                        <th>Fecha Entrega</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -82,6 +83,7 @@
                         <td>{{ $p->codigo }}</td>
                         <td>{{ $p->pivot->costo_analisis }}</td>
                         <td>{{ $p->pivot->tiempo_entrega_dias}}</td>
+                        <td>{{ $p->pivot->fecha_entrega}}</td>
                         <td class="d-flex gap-1">
                             {{-- BOTÓN EDITAR PIVOT: Le pasamos el ID del registro pivot --}}
                             @php
@@ -101,7 +103,7 @@
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="uploadModalLabel">Subir Documento</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"><i class="fa-solid fa-x"></i></button>
-                                            
+
                                         </div>
 
                                         {{-- FORMULARIO DE SUBIDA --}}
@@ -111,11 +113,15 @@
                                             @csrf
 
                                             <div class="modal-body">
-                                                <p>Subiendo documento </p>
                                                 <div class="form-group">
                                                     <label for="documento_{{ $p->pivot->id }}">Seleccionar Archivo (máx 20MB)</label>
-                                                    {{-- MUY IMPORTANTE: El nombre del campo es 'documento', que es el nombre validado en el controlador --}}
                                                     <input type="file" class="form-control-file" id="documento_{{ $p->pivot->id }}" name="documento" required>
+                                                    <label class="form-label">Fecha Plazo de Entrega</label>
+                                                    <input type="date" name="fecha_plazo_entrega" class="form-control @error('fecha_plazo_entrega') is-invalid @enderror" value="{{ old('fecha_plazo_entrega') }}" />
+                                                    @error('fecha_plazo_entrega') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                    <label class="form-label">Fecha de Recojo</label>
+                                                    <input type="date" name="fecha_recojo" class="form-control @error('fecha_recojo') is-invalid @enderror" value="{{ old('fecha_recojo') }}" />
+                                                    @error('fecha_recojo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                                 </div>
                                             </div>
 
@@ -162,20 +168,23 @@
 
                     <!-- F. Costo Análisis (para valores decimales/monetarios) -->
                     <div class="col-md-2">
-                        <label class="form-label">F. Costo Análisis</label>
-                        {{-- Se usa type="number" con step="0.01" o step="any" para permitir decimales --}}
+                        <label class="form-label">Costo Análisis</label>
                         <input type="number" name="costo_analisis" class="form-control @error('costo_analisis') is-invalid @enderror" value="{{ old('costo_analisis') }}" step="0.01" min="0" />
                         @error('costo_analisis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     {{-- Tiempo Entrega Dias (para valores enteros) --}}
                     <div class="col-md-2">
-                        <label class="form-label">F. Tiempo Entrega Dias</label>
-                        {{-- Se usa type="number" con step="1" para aceptar solo números enteros --}}
+                        <label class="form-label">Tiempo Entrega Dias</label>
                         <input type="number" name="tiempo_entrega_dias" class="form-control @error('tiempo_entrega_dias') is-invalid @enderror" value="{{ old('tiempo_entrega_dias') }}" step="1" min="0" />
                         @error('tiempo_entrega_dias') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
-
+                    {{-- Agregar campo Fecha Entrega (Basado en el que pusiste en el ejemplo del error anterior) --}}
+                    <div class="col-md-2">
+                        <label class="form-label">Fecha Entrega</label>
+                        <input type="date" name="fecha_entrega" class="form-control @error('fecha_entrega') is-invalid @enderror" value="{{ old('fecha_entrega') }}" />
+                        @error('fecha_entrega') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                     <div class="col-12 mt-3">
                         <button class="btn btn-primary">Asignar Producto</button>
                     </div>
@@ -187,13 +196,9 @@
 </div>
 @endsection
 @push('js')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        $('.select2').select2({
-            width: '100%'
-        });
-    });
+
+
 </script>
 @endpush

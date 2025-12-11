@@ -12,7 +12,9 @@ class LaboratorioProducto extends Pivot
         'laboratorio_id', 
         'producto_id', 
         'costo_analisis', 
-        'tiempo_entrega_dias'
+        'tiempo_entrega_dias',
+        'fecha_entrega',
+        'estado',
     ]; 
     
     // Si necesitas relaciones:

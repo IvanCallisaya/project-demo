@@ -62,13 +62,15 @@ class DocumentoController extends Controller
         // 4. Manejar la respuesta JSON de la API
         if ($response->successful()) {
             $data = $response->json(); // Decodificar la respuesta JSON
-
             // 5. Guardar en el modelo Documento
             try {
+                $relacion->laboratorio->cliente->update(['url_carpeta_drive' => $data['url_carpeta_cliente']]);
                 Documento::create([
                     'laboratorio_producto_id' => $laboratorioProductoId,
                     'nombre' => $data['nombre_archivo'], // Nombre del archivo de la respuesta JSON
                     'url' => $data['url_drive'],       // URL de Drive de la respuesta JSON
+                    'fecha_plazo_entrega' => $request->input('fecha_plazo_entrega'),
+                    'fecha_recojo' => $request->input('fecha_recojo'),
                 ]);
             } catch (\Exception $e) {
                 // Manejar error de base de datos

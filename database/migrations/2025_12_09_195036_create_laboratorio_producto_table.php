@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('laboratorio_id')->nullable()->constrained('laboratorio');
             $table->foreignId('producto_id')->nullable()->constrained('producto');
             $table->decimal('costo_analisis', 10, 2)->nullable();
-            $table->integer('tiempo_entrega_dias')->nullable(); // en días
+            $table->integer('tiempo_entrega_dias')->nullable();
+            $table->date('fecha_entrega')->nullable();
             $table->boolean('estado')->default(true);
             $table->timestamps();
         });

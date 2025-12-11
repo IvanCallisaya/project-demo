@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('laboratorio_producto_id')->nullable()->constrained('laboratorio_producto');
             $table->string('nombre');
             $table->string('url');
+            $table->date('fecha_plazo_entrega')->nullable();
+            $table->date('fecha_recojo')->nullable();
             $table->timestamps();
         });
     }

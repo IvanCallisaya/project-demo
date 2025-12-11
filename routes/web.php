@@ -50,9 +50,8 @@ Route::prefix('laboratorio/{laboratorio}/producto')->group(function () {
 Route::prefix('cliente_empresa/{clienteEmpresa}')->name('cliente.')->group(function () {
     // 3. Laboratorios
     Route::get('laboratorios', [ClienteEmpresaController::class, 'laboratoriosIndex'])->name('laboratorios.index');
-    
-    // 4. Historial/Actividad
-    Route::get('historial', [ClienteEmpresaController::class, 'historialIndex'])->name('historial.index');
+    // 5. Documentos
+    Route::get('documentos', [ClienteEmpresaController::class, 'documentosIndex'])->name('documentos.index');
 
     // Puedes agregar más rutas aquí (ej: documentos, proyectos, etc.)
 });

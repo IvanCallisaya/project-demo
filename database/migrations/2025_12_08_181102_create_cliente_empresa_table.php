@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('telefono_principal')->nullable();
             $table->foreignId('empresa_id')->nullable()->constrained('empresa');
             $table->string('imagen')->nullable();
+            $table->string('url_carpeta_drive')->nullable();
             $table->timestamps();
         });
     }

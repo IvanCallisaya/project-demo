@@ -16,6 +16,7 @@ class ClienteEmpresa extends Model
         'telefono_principal',
         'empresa_id',
         'imagen',
+        'url_carpeta_drive',
     ];
 
     public function contactos()

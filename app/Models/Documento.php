@@ -12,6 +12,8 @@ class Documento extends Model
         'laboratorio_producto_id',
         'nombre',
         'url',
+        'fecha_plazo_entrega',
+        'fecha_recojo',
     ];
 
     public function laboratorioProducto()

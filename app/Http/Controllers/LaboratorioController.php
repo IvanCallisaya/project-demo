@@ -99,30 +99,34 @@ class LaboratorioController extends Controller
         return redirect()->route('cliente_empresa.laboratorios.index', $clienteId)
             ->with('success', 'Laboratorio eliminado.');
     }
+    // app/Http/Controllers/LaboratorioController.php (o donde esté esta función)
+
     public function attachProducto(Request $request, Laboratorio $laboratorio)
     {
-        // 1. Validación de campos Pivot
+        // 1. Validación de campos Pivot (Agregamos fecha_entrega)
         $request->validate([
-            'costo_analisis' => 'nullable|decimal:0,2',
-            'tiempo_entrega_dias' => 'nullable|integer',
+            'costo_analisis' => 'nullable|numeric|min:0',
+            'tiempo_entrega_dias' => 'nullable|integer|min:0',
+            'fecha_entrega' => 'nullable|date', 
         ]);
 
         // 2. Preparar los datos Pivot
         $pivotData = [
             'costo_analisis' => $request->costo_analisis,
             'tiempo_entrega_dias' => $request->tiempo_entrega_dias,
+            'fecha_entrega' => $request->fecha_entrega,
         ];
 
         try {
             // 3. Adjuntar (Attach) el producto con los datos pivot
-            // Usamos syncWithoutDetaching para evitar perder otros productos
-            // Si ya existe, se actualizará el pivot.
+            // Aquí debes usar syncWithoutDetaching para adjuntar/actualizar.
+            // Asumiendo que `producto_id` es el ID del producto a adjuntar:
             $laboratorio->productos()->attach($request->producto_id, $pivotData);
 
             return redirect()->route('laboratorio.show', $laboratorio)
                 ->with('success', 'Producto asignado y datos de inventario guardados correctamente.');
         } catch (\Exception $e) {
-            // En caso de error (ej: si ya está adjunto y no deseas actualizar, podrías usar attach([], false))
+            // ... (Manejo de errores)
             Log::error("Error al asignar producto al laboratorio: " . $e->getMessage());
             return redirect()->route('laboratorio.show', $laboratorio)
                 ->with('error', 'Error al asignar el producto.');
@@ -179,11 +183,13 @@ class LaboratorioController extends Controller
         $request->validate([
             'costo_analisis' => 'nullable|decimal:0,2',
             'tiempo_entrega_dias' => 'nullable|integer',
+            'fecha_entrega' => 'nullable|date',
         ]);
 
         $pivotData = [
             'costo_analisis' => $request->costo_analisis,
             'tiempo_entrega_dias' => $request->tiempo_entrega_dias,
+            'fecha_entrega' => $request->fecha_entrega,
         ];
 
         // Usamos el método update() del modelo pivot

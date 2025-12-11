@@ -8,15 +8,15 @@
     @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
     <div class="card">
-        
+
         {{-- BLOQUE 1: ENCABEZADO Y DATOS ESENCIALES (El mismo diseño ampliado) --}}
         {{-- ... (Contenido del card-header superior) ... --}}
-        
+
         <div class="card-header border-bottom-0">
-             {{-- ... Contenido del encabezado (nombre, teléfono, edición) ... --}}
-             {{-- (Se omite aquí por espacio, pero es el mismo que definimos antes) --}}
-             
-             <div class="row align-items-center">
+            {{-- ... Contenido del encabezado (nombre, teléfono, edición) ... --}}
+            {{-- (Se omite aquí por espacio, pero es el mismo que definimos antes) --}}
+
+            <div class="row align-items-center">
                 {{-- Contenido de info y botones de edición --}}
                 <div class="col-12 col-md-9">
                     <h1 class="card-title mb-1" style="font-size: 2.25rem;">{{ $clienteEmpresa->nombre }}</h1>
@@ -33,38 +33,38 @@
                 </div>
             </div>
         </div>
-        
+
         {{-- ================================================= --}}
         {{-- BLOQUE 2: MENÚ DE NAVEGACIÓN DINÁMICO (Ajustado a tu diseño) --}}
         {{-- ================================================= --}}
         <div class="card-header p-0 pt-3 border-bottom">
             {{-- Usamos nav-pills o nav-tabs; aquí usamos nav-tabs con enlaces --}}
             <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
-                
+
                 {{-- 1. PESTAÑA RESUMEN (Ruta principal show) --}}
                 <li class="nav-item">
-                    <a href="{{ route('cliente_empresa.show', $clienteEmpresa->id) }}" 
-                       class="nav-link @if($currentView === 'resumen') active @endif">
+                    <a href="{{ route('cliente_empresa.show', $clienteEmpresa->id) }}"
+                        class="nav-link @if($currentView === 'resumen') active @endif">
                         <i class="fa-solid fa-circle-info me-1"></i> Resumen
                     </a>
                 </li>
-                
+
                 {{-- 3. PESTAÑA LABORATORIOS --}}
                 <li class="nav-item">
-                    <a href="{{ route('cliente.laboratorios.index', $clienteEmpresa->id) }}" 
-                       class="nav-link @if($currentView === 'laboratorios') active @endif">
+                    <a href="{{ route('cliente.laboratorios.index', $clienteEmpresa->id) }}"
+                        class="nav-link @if($currentView === 'laboratorios') active @endif">
                         <i class="fa-solid fa-flask me-1"></i> Laboratorios
                     </a>
                 </li>
 
-                 {{-- 4. PESTAÑA HISTORIAL --}}
+                {{-- 4. PESTAÑA DOCUMENTOS --}}
                 <li class="nav-item">
-                    <a href="#" 
-                       class="nav-link @if($currentView === 'historial') active @endif">
-                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Historial
+                    <a href="{{ route('cliente.documentos.index', $clienteEmpresa->id) }}"
+                        class="nav-link @if($currentView === 'historial') active @endif">
+                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Documentos
                     </a>
                 </li>
-                
+
             </ul>
         </div>
 
@@ -72,29 +72,29 @@
         {{-- BLOQUE 3: CONTENIDO DINÁMICO (card-body) --}}
         {{-- ================================================= --}}
         <div class="card-body">
-            
+
             @if($currentView === 'resumen')
-                {{-- Datos del Cliente: Nombre, Dirección, etc. (Vista de Resumen) --}}
-                @include('cliente_empresa.partials.resumen', ['clienteEmpresa' => $clienteEmpresa])
+            {{-- Datos del Cliente: Nombre, Dirección, etc. (Vista de Resumen) --}}
+            @include('cliente_empresa.partials.resumen', ['clienteEmpresa' => $clienteEmpresa])
 
             @elseif($currentView === 'laboratorios')
-                {{-- Listado de Laboratorios asociados al cliente --}}
-                @include('cliente_empresa.partials.laboratorios', ['laboratorios' => $clienteEmpresa->laboratorios])
-            
-            @elseif($currentView === 'historial')
-                {{-- Registro de actividad --}}
-                @include('cliente_empresa.partials.historial')
+            {{-- Listado de Laboratorios asociados al cliente --}}
+            @include('cliente_empresa.partials.laboratorios', ['laboratorios' => $clienteEmpresa->laboratorios])
 
+            @elseif($currentView === 'documentos')
+            {{-- Registro de actividad --}}
+            @include('cliente_empresa.partials.documentos', ['documentos' => $clienteEmpresa->id])
             @else
-                <div class="alert alert-info">Contenido no definido para esta vista.</div>
+            <div class="alert alert-info">Contenido no definido para esta vista.</div>
             @endif
         </div>
-        
+
     </div>
 </div>
 @endsection
 
 @push('js')
+
 <script>
     function loadLaboratorios(url) {
         $.ajax({
@@ -103,10 +103,10 @@
             success: function(response) {
                 // 1. Encontrar el HTML del contenido de la tabla en la respuesta
                 var newContent = $(response).find('#laboratorios-tab-content').html();
-                
+
                 // 2. Reemplazar solo el contenido de la pestaña
                 $('#laboratorios-tab-content').html(newContent);
-                
+
                 // 3. (Opcional) Actualizar la URL en la barra de direcciones sin recargar
                 history.pushState(null, null, url);
             },
@@ -130,14 +130,50 @@
         loadLaboratorios(url);
     });
 
-    // Listener para el cambio de per_page (si no envías el formulario completo)
-    // El onchange="this.form.submit()" en el select ya llama al submit,
-    // que es capturado por el listener anterior. Si lo haces via JS:
-    /*
-    $(document).on('change', '#laboratorio-search-form select[name="per_page"]', function() {
-         $(this).closest('form').submit();
-    });
-    */
 
+    $(document).on('change', '#laboratorio-search-form select[name="per_page"]', function() {
+        $(this).closest('form').submit();
+    });
+
+    function loadDocumentos(url) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response) {
+                // 1. Encontrar el HTML del contenido de la tabla en la respuesta
+                // NOTA: Debe coincidir con el ID del contenedor en el Blade parcial
+                var newContent = $(response).find('#documentos-tab-content').html();
+
+                // 2. Reemplazar solo el contenido de la pestaña
+                $('#documentos-tab-content').html(newContent);
+
+                // 3. (Opcional) Actualizar la URL en la barra de direcciones sin recargar
+                history.pushState(null, null, url);
+            },
+            error: function(xhr) {
+                alert('Error al cargar la lista de documentos.');
+                console.error(xhr);
+            }
+        });
+    }
+
+    // Listener para enlaces de paginación (dentro del contenedor de documentos)
+    $(document).on('click', '#documentos-tab-content .pagination a', function(e) {
+        e.preventDefault();
+        loadDocumentos($(this).attr('href'));
+    });
+
+    // Listener para el formulario de búsqueda de documentos
+    $(document).on('submit', '#documentos-search-form', function(e) {
+        e.preventDefault();
+        var url = $(this).attr('action') + '?' + $(this).serialize();
+        loadDocumentos(url);
+    });
+
+
+    // Listener para el cambio de "per_page" en el formulario de documentos
+    $(document).on('change', '#documentos-search-form select[name="per_page"]', function() {
+        $(this).closest('form').submit();
+    });
 </script>
 @endpush

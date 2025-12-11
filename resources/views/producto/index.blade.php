@@ -4,6 +4,23 @@
 
 <div class="container-fluid">
     <h1>Productos</h1>
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    @endif
     <div class="card">
         <div class="card-header">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2">
@@ -39,7 +56,7 @@
                         <th>Nombre</th>
                         <th>Unidad Medida</th>
                         <th>Subcategoria</th>
-                        <th></th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,8 +67,16 @@
                         <td>{{ $p->unidad_medida }}</td>
                         <td>{{ $p->subcategoria->nombre }}</td>
                         <td>
-                            <a href="{{ route('producto.edit',$p->id) }}" class="btn btn-sm btn-warning">Editar</a>
-                            <form method="POST" action="{{ route('producto.destroy',$p->id) }}" style="display:inline">@csrf @method('DELETE')<button class="btn btn-sm btn-danger">Eliminar</button></form>
+                            <a href="{{ route('producto.edit',$p->id) }}" class="btn btn-sm btn-warning"><i class="fa-regular fa-pen-to-square" style="color: white;"></i></a>
+                            <form action="{{ route('producto.destroy',$p->id) }}"
+                                method="POST"
+                                style="display:inline">
+                                @csrf @method('DELETE')
+                                <button class="btn btn-sm btn-danger"
+                                    onclick="return confirm('¿Eliminar producto?')">
+                                    <i class="fa-solid fa-trash-can" style="color:white"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     @endforeach

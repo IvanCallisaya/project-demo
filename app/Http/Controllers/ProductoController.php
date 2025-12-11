@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Producto;
 use App\Models\Subcategoria; // 🛑 NUEVA LÍNEA: Importar el modelo Subcategoria
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule; // Usar el alias para Rule
 
@@ -28,7 +29,6 @@ class ProductoController extends Controller
 
     public function create()
     {
-        // 🛑 CAMBIO 1: Pasar todas las subcategorías a la vista 🛑
         $subcategorias = Subcategoria::orderBy('nombre')->get();
         return view('producto.create', compact('subcategorias'));
     }
@@ -80,9 +80,24 @@ class ProductoController extends Controller
         return redirect()->route('producto.index')->with('success', 'Producto actualizado.');
     }
 
-    public function destroy(Producto $producto)
-    {
+public function destroy(Producto $producto)
+{
+    try {
+        // Intenta eliminar el producto
         $producto->delete();
-        return back()->with('success', 'Producto eliminado.');
+        
+        return back()->with('success', 'Producto eliminado correctamente.');
+
+    } catch (QueryException $e) {
+        // Verifica si el código de error es el de restricción de llave foránea de MySQL (1451)
+        if ($e->getCode() === '23000') {
+            // Mensaje personalizado para el usuario
+            return back()->with('error', '🚫 **Error:** No se puede eliminar el producto porque está asignado a uno o más laboratorios.');
+        }
+
+        // Si es otro tipo de error de consulta, puedes registrarlo o lanzar la excepción.
+        // En este caso, simplemente retornamos un mensaje de error genérico.
+        return back()->with('error', 'Ocurrió un error inesperado al intentar eliminar el producto.');
     }
+}
 }

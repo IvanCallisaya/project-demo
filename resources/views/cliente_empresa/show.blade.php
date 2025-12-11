@@ -76,10 +76,6 @@
             @if($currentView === 'resumen')
                 {{-- Datos del Cliente: Nombre, Dirección, etc. (Vista de Resumen) --}}
                 @include('cliente_empresa.partials.resumen', ['clienteEmpresa' => $clienteEmpresa])
-            
-            @elseif($currentView === 'contactos')
-                {{-- Listado de Contactos (Usamos la relación cargada en el controlador) --}}
-                @include('cliente_empresa.partials.contactos', ['contactos' => $clienteEmpresa->contactos])
 
             @elseif($currentView === 'laboratorios')
                 {{-- Listado de Laboratorios asociados al cliente --}}

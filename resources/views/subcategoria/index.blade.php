@@ -62,7 +62,7 @@
                         <td class="text-center">
                             {{-- Botón Editar --}}
                             <a href="{{ route('subcategoria.edit', $sub->id) }}" class="btn btn-sm btn-warning text-white">
-                                <i class="fa-regular fa-pen-to-square"></i> Editar
+                                <i class="fa-regular fa-pen-to-square"></i>
                             </a>
 
                             {{-- Formulario Eliminar --}}
@@ -70,7 +70,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro de eliminar esta subcategoría?')">
-                                    <i class="fa-solid fa-trash-can"></i> Eliminar
+                                    <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </form>
                         </td>

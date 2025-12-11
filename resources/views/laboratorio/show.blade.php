@@ -84,16 +84,57 @@
                         <td>{{ $p->pivot->tiempo_entrega_dias}}</td>
                         <td class="d-flex gap-1">
                             {{-- BOTÓN EDITAR PIVOT: Le pasamos el ID del registro pivot --}}
-                            <a href="{{ route('laboratorio.producto.edit_pivot',[$laboratorio->id, $p->pivot->id]) }}"
-                                class="btn btn-info btn-sm text-white">
-                                Editar
+                            @php
+                            $laboratorioProductoId = $p->pivot->id;
+                            @endphp
+
+                            <a href="#" class="btn btn-sm btn-info"
+                                data-bs-toggle="modal"
+                                data-bs-target="#uploadModal{{ $p->pivot->id }}">
+                                Subir Documento
                             </a>
 
+
+                            <div class="modal fade" id="uploadModal{{ $p->pivot->id }}" tabindex="-1">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="uploadModalLabel">Subir Documento</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"><i class="fa-solid fa-x"></i></button>
+                                            
+                                        </div>
+
+                                        {{-- FORMULARIO DE SUBIDA --}}
+                                        <form action="{{ route('documento.subir', $p->pivot->id ) }}" method="POST" enctype="multipart/form-data">
+
+                                            {{-- TOKEN CSRF REQUERIDO PARA RUTAS POST EN LARAVEL --}}
+                                            @csrf
+
+                                            <div class="modal-body">
+                                                <p>Subiendo documento </p>
+                                                <div class="form-group">
+                                                    <label for="documento_{{ $p->pivot->id }}">Seleccionar Archivo (máx 20MB)</label>
+                                                    {{-- MUY IMPORTANTE: El nombre del campo es 'documento', que es el nombre validado en el controlador --}}
+                                                    <input type="file" class="form-control-file" id="documento_{{ $p->pivot->id }}" name="documento" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                <button type="submit" class="btn btn-primary">Subir y Guardar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ route('laboratorio.producto.edit_pivot',[$laboratorio->id, $p->pivot->id]) }}"
+                                class="btn btn-sm btn-warning ml-2"><i class="fa-regular fa-pen-to-square" style="color: white;"></i></a>
                             {{-- BOTÓN REMOVER: Le pasamos el ID del registro pivot --}}
                             <form method="POST" action="{{ route('laboratorio.producto.detach',[$laboratorio->id, $p->pivot->id]) }}" style="display:inline">
                                 @csrf @method('DELETE')
-                                <button class="btn btn-danger btn-sm" onclick="return confirm('¿Remover este registro de inventario?')">Remover</button>
+                                <button class="btn btn-danger btn-sm ml-2" onclick="return confirm('¿Remover este registro de inventario?')"><i class="fa-solid fa-trash-can" style="color:white"></button>
                             </form>
+
                         </td>
                     </tr>
                     @endforeach

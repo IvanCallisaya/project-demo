@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClienteEmpresaController;
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProfileController;
@@ -55,6 +56,8 @@ Route::prefix('cliente_empresa/{clienteEmpresa}')->name('cliente.')->group(funct
 
     // Puedes agregar más rutas aquí (ej: documentos, proyectos, etc.)
 });
+Route::post('/productos/{laboratorioProductoId}/documento/upload', [DocumentoController::class, 'subirDocumento'])
+    ->name('documento.subir');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

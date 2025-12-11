@@ -25,4 +25,8 @@ class LaboratorioProducto extends Pivot
     {
         return $this->belongsTo(Producto::class);
     }
+    public function documentos()
+    {
+        return $this->hasMany(Documento::class, 'laboratorio_producto_id');
+    }
 }

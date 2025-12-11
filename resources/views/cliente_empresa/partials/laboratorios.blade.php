@@ -1,13 +1,15 @@
 <h4 class="mb-3">Laboratorios y Servicios Contratados</h4>
-{{-- Aquí se listan los laboratorios/convenios asociados a este cliente --}}
-@if($laboratorios->count())
-<div class="container-fluid">
-    <h1>Laboratorios</h1>
+
+{{-- Aseguramos que la variable $labs contenga la colección paginada --}}
+@if($labs->count() > 0 || request('q'))
+
+<div class="container-fluid p-0">
     <div class="card">
         <div class="card-header">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2">
 
-                <form method="GET" action="{{ route('laboratorio.index') }}" class="d-flex flex-column flex-md-row gap-2 mb-2 mb-md-0 w-100 w-md-75">
+                {{-- LA RUTA DE BÚSQUEDA DEBE APUNTAR A LA MISMA PESTAÑA --}}
+                <form id="laboratorio-search-form" method="GET" action="{{ route('cliente.laboratorios.index', $clienteEmpresa->id) }}" class="d-flex flex-column flex-md-row gap-2 mb-2 mb-md-0 w-100 w-md-75">
 
                     <input type="text" name="q" value="{{ request('q') }}" class="form-control flex-grow-1"
                         placeholder="Buscar por nombre..."
@@ -31,7 +33,7 @@
             </div>
         </div>
 
-        <div class="card-body table-responsive">
+        <div class="card-body table-responsive" id="laboratorios-list-container">
             <table class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
@@ -42,20 +44,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($laboratorios as $lab)
+                    {{-- Iteramos sobre la colección paginada $labs --}}
+                    @foreach($labs as $lab)
                     <tr>
                         <td>{{ $lab->nombre }}</td>
-                        <td>{{ $lab->productos_count }}</td>
+                        {{-- Usamos la propiedad generada por withCount --}}
+                        <td><span class="badge bg-primary">{{ $lab->productos_count }}</span></td>
                         <td>{{ $lab->telefono }}</td>
                         <td style="white-space:nowrap">
                             <a href="{{ route('laboratorio.show',$lab->id) }}" class="btn btn-sm btn-info"><i class="fa-regular fa-eye" style="color:white"></i></a>
                             <a href="{{ route('laboratorio.edit',$lab->id) }}" class="btn btn-sm btn-warning"><i class="fa-regular fa-pen-to-square" style="color: white;"></i></a>
+
+                            {{-- ... Formulario de eliminar ... --}}
                             <form action="{{ route('laboratorio.destroy',$lab->id) }}"
                                 method="POST"
                                 style="display:inline">
                                 @csrf @method('DELETE')
                                 <button class="btn btn-sm btn-danger"
-                                    onclick="return confirm('¿Eliminar cliente?')">
+                                    onclick="return confirm('¿Eliminar Laboratorio?')">
                                     <i class="fa-solid fa-trash-can" style="color:white"></i>
                                 </button>
                             </form>
@@ -66,9 +72,13 @@
             </table>
         </div>
 
-
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            {{-- Usamos la variable $labs para la paginación --}}
+            <div>Mostrando {{ $labs->firstItem() ?? 0 }} - {{ $labs->lastItem() ?? 0 }} de {{ $labs->total() }}</div>
+            <div>{{ $labs->links() }}</div>
+        </div>
     </div>
 </div>
 @else
-    <div class="alert alert-info">Este cliente no tiene laboratorios asociados o convenios registrados.</div>
+<div class="alert alert-info">Este cliente no tiene laboratorios asociados o convenios registrados.</div>
 @endif

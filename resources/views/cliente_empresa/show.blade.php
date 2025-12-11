@@ -97,3 +97,51 @@
     </div>
 </div>
 @endsection
+
+@push('js')
+<script>
+    function loadLaboratorios(url) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response) {
+                // 1. Encontrar el HTML del contenido de la tabla en la respuesta
+                var newContent = $(response).find('#laboratorios-tab-content').html();
+                
+                // 2. Reemplazar solo el contenido de la pestaña
+                $('#laboratorios-tab-content').html(newContent);
+                
+                // 3. (Opcional) Actualizar la URL en la barra de direcciones sin recargar
+                history.pushState(null, null, url);
+            },
+            error: function(xhr) {
+                alert('Error al cargar la lista de laboratorios.');
+                console.error(xhr);
+            }
+        });
+    }
+
+    // Listener para enlaces de paginación
+    $(document).on('click', '#laboratorios-tab-content .pagination a', function(e) {
+        e.preventDefault();
+        loadLaboratorios($(this).attr('href'));
+    });
+
+    // Listener para el formulario de búsqueda y per_page
+    $(document).on('submit', '#laboratorio-search-form', function(e) {
+        e.preventDefault();
+        var url = $(this).attr('action') + '?' + $(this).serialize();
+        loadLaboratorios(url);
+    });
+
+    // Listener para el cambio de per_page (si no envías el formulario completo)
+    // El onchange="this.form.submit()" en el select ya llama al submit,
+    // que es capturado por el listener anterior. Si lo haces via JS:
+    /*
+    $(document).on('change', '#laboratorio-search-form select[name="per_page"]', function() {
+         $(this).closest('form').submit();
+    });
+    */
+
+</script>
+@endpush

@@ -57,7 +57,7 @@
                                 style="display:inline">
                                 @csrf @method('DELETE')
                                 <button class="btn btn-sm btn-danger"
-                                    onclick="return confirm('¿Eliminar cliente?')">
+                                    onclick="return confirm('¿Eliminar laboratorio?')">
                                     <i class="fa-solid fa-trash-can" style="color:white"></i>
                                 </button>
                             </form>

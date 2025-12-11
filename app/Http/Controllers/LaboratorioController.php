@@ -12,17 +12,12 @@ use Illuminate\Support\Facades\Log;
 class LaboratorioController extends Controller
 {
     // index with search + per_page config
-    public function index(Request $r, $cliente_empresa_id = null)
+    public function index(Request $r)
     {
         $perPage = (int) ($r->query('per_page', 10));
         $q = $r->query('q');
 
         $query = Laboratorio::query()->withCount('productos');
-
-        // optional: filter by cliente_empresa (nested menu requirement)
-        if ($cliente_empresa_id) {
-            $query->where('cliente_empresa_id', $cliente_empresa_id);
-        }
 
         if ($q) {
             $query->where('nombre', 'like', "%{$q}%");
@@ -30,10 +25,8 @@ class LaboratorioController extends Controller
 
         $labs = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
 
-        // pass cliente info if filtering
-        $cliente = $cliente_empresa_id ? ClienteEmpresa::find($cliente_empresa_id) : null;
 
-        return view('laboratorio.index', compact('labs', 'cliente', 'perPage'));
+        return view('laboratorio.index', compact('labs', 'perPage'));
     }
 
     public function create(Request $r, $cliente_empresa_id = 1)

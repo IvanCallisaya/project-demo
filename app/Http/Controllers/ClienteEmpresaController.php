@@ -119,18 +119,28 @@ class ClienteEmpresaController extends Controller
         return back()->with('success', 'Eliminado correctamente.');
     }
 
-    public function laboratoriosIndex($id)
-    {
-        // Cargar los laboratorios asociados a este cliente
-        // Asumiendo una relación $clienteEmpresa->laboratorios()
-        $clienteEmpresa = ClienteEmpresa::findOrFail($id);
-        $clienteEmpresa->load([
-        'laboratorios' => function ($query) {
-            $query->withCount('productos');
-        }
-    ]);
-        
-        $currentView = 'laboratorios';
-        return view('cliente_empresa.show', compact('clienteEmpresa', 'currentView'));
+
+public function laboratoriosIndex(Request $request, ClienteEmpresa $clienteEmpresa)
+{
+    $laboratoriosQuery = $clienteEmpresa->laboratorios();
+    
+    if ($q = $request->input('q')) {
+        $laboratoriosQuery->where('nombre', 'like', '%' . $q . '%');
     }
+
+    $perPage = $request->input('per_page', 10);
+    
+    $laboratoriosPaginados = $laboratoriosQuery
+                                ->withCount('productos')
+                                ->paginate($perPage)
+                                ->withQueryString();
+
+    $currentView = 'laboratorios';
+
+    return view('cliente_empresa.show', [
+        'clienteEmpresa' => $clienteEmpresa,
+        'currentView' => $currentView,
+        'labs' => $laboratoriosPaginados,
+    ]);
+}
 }

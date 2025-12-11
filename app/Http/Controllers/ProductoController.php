@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Producto;
-use App\Models\Subcategoria; 
+use App\Models\SubCategoria;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule; 

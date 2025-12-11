@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Producto;
-use App\Models\Subcategoria; // 🛑 NUEVA LÍNEA: Importar el modelo Subcategoria
+use App\Models\Subcategoria; 
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule; // Usar el alias para Rule
+use Illuminate\Validation\Rule; 
 
 class ProductoController extends Controller
 {
@@ -29,7 +29,7 @@ class ProductoController extends Controller
 
     public function create()
     {
-        $subcategorias = Subcategoria::orderBy('nombre')->get();
+        $subcategorias = SubCategoria::orderBy('nombre')->get();
         return view('producto.create', compact('subcategorias'));
     }
 
@@ -38,7 +38,6 @@ class ProductoController extends Controller
         $data = $r->validate([
             'codigo' => 'nullable|string|max:50|unique:producto,codigo',
             'nombre' => 'required|string|max:191',
-            // 🛑 CAMBIO 2: Añadir validación para subcategoria_id 🛑
             'subcategoria_id' => 'required|exists:subcategoria,id',
             'categoria' => 'nullable|string',
             'unidad_medida' => 'nullable|string|max:50',
@@ -62,7 +61,7 @@ class ProductoController extends Controller
 
     public function edit(Producto $producto)
     {
-        $subcategorias = Subcategoria::orderBy('nombre')->get();
+        $subcategorias = SubCategoria::orderBy('nombre')->get();
         return view('producto.edit', compact('producto', 'subcategorias'));
     }
 

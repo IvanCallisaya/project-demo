@@ -22,4 +22,8 @@ class ClienteEmpresa extends Model
     {
         return $this->hasMany(ContactoCliente::class, 'cliente_empresa_id');
     }
+    public function laboratorios()
+    {
+        return $this->hasMany(Laboratorio::class, 'cliente_empresa_id');
+    }
 }

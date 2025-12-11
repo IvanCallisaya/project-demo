@@ -79,6 +79,7 @@
                         </td>
 
                         <td class="text-center">
+                            <a href="{{ route('cliente_empresa.show',$e->id) }}" class="btn btn-sm btn-info"><i class="fa-regular fa-eye" style="color:white"></i></a>
                             <a href="{{ route('cliente_empresa.edit',$e->id) }}"
                                 class="btn btn-sm btn-warning ">
                                 <i class="fa-regular fa-pen-to-square" style="color:white"></i>

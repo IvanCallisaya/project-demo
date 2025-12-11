@@ -32,18 +32,28 @@ Route::resource('producto', ProductoController::class);
 Route::resource('subcategoria', SubCategoriaController::class);
 
 Route::prefix('laboratorio/{laboratorio}/producto')->group(function () {
-    
+
     // POST: Adjuntar (Se mantiene igual, solo necesita {laboratorio} y 'producto_id' en el Request)
     Route::post('attach', [LaboratorioController::class, 'attachProducto'])->name('laboratorio.producto.attach');
-    
+
     // DELETE: Remover (Ahora recibe el ID de la fila pivot)
     Route::delete('detach/{pivotRecord}', [LaboratorioController::class, 'detachProducto'])->name('laboratorio.producto.detach');
-    
+
     // GET: Mostrar el formulario para editar el pivot específico.
     Route::get('{pivotRecord}/edit-pivot', [LaboratorioController::class, 'editPivot'])->name('laboratorio.producto.edit_pivot');
-    
+
     // PUT/PATCH: Actualizar el pivot específico.
     Route::put('{pivotRecord}/update-pivot', [LaboratorioController::class, 'updatePivot'])->name('laboratorio.producto.update_pivot');
+});
+
+Route::prefix('cliente_empresa/{clienteEmpresa}')->name('cliente.')->group(function () {
+    // 3. Laboratorios
+    Route::get('laboratorios', [ClienteEmpresaController::class, 'laboratoriosIndex'])->name('laboratorios.index');
+    
+    // 4. Historial/Actividad
+    Route::get('historial', [ClienteEmpresaController::class, 'historialIndex'])->name('historial.index');
+
+    // Puedes agregar más rutas aquí (ej: documentos, proyectos, etc.)
 });
 
 Route::middleware('auth')->group(function () {

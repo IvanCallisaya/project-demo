@@ -47,9 +47,9 @@ class ClienteEmpresaController extends Controller
         $empresa = ClienteEmpresa::create([
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
-            'nombre_contacto_principal'=> $request->nombre_contacto_principal,
-            'email_principal'=> $request->email_principal,
-            'telefono_principal'=> $request->telefono_principal,
+            'nombre_contacto_principal' => $request->nombre_contacto_principal,
+            'email_principal' => $request->email_principal,
+            'telefono_principal' => $request->telefono_principal,
             'empresa_id' => 1,
             'imagen' => $rutaImagen,
         ]);
@@ -67,7 +67,13 @@ class ClienteEmpresaController extends Controller
             ->with('success', 'Cliente empresa creado correctamente.');
     }
 
-
+    public function show($id)
+    {
+        $clienteEmpresa = ClienteEmpresa::findOrFail($id);
+        $clienteEmpresa->load('contactos'); 
+        $currentView = 'resumen'; 
+        return view('cliente_empresa.show', compact('clienteEmpresa', 'currentView'));
+    }
     public function edit($id)
     {
         $cliente_empresa = ClienteEmpresa::with('contactos')->findOrFail($id);
@@ -111,5 +117,20 @@ class ClienteEmpresaController extends Controller
     {
         ClienteEmpresa::findOrFail($id)->delete();
         return back()->with('success', 'Eliminado correctamente.');
+    }
+
+    public function laboratoriosIndex($id)
+    {
+        // Cargar los laboratorios asociados a este cliente
+        // Asumiendo una relación $clienteEmpresa->laboratorios()
+        $clienteEmpresa = ClienteEmpresa::findOrFail($id);
+        $clienteEmpresa->load([
+        'laboratorios' => function ($query) {
+            $query->withCount('productos');
+        }
+    ]);
+        
+        $currentView = 'laboratorios';
+        return view('cliente_empresa.show', compact('clienteEmpresa', 'currentView'));
     }
 }

@@ -94,10 +94,20 @@ class LaboratorioController extends Controller
 
     public function destroy(Laboratorio $laboratorio)
     {
-        $clienteId = $laboratorio->cliente_empresa_id;
-        $laboratorio->delete();
-        return redirect()->route('cliente_empresa.laboratorios.index', $clienteId)
-            ->with('success', 'Laboratorio eliminado.');
+        try {
+            $laboratorio->delete();
+            return redirect()->route('laboratorio.index')
+                ->with('success', 'Laboratorio eliminado.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23000') {
+                // Mensaje personalizado para el usuario
+                return back()->with('error', '🚫 **Error:** No se puede eliminar el laboratorio porque tiene productos asignados.');
+            }
+
+            // Si es otro tipo de error de consulta, puedes registrarlo o lanzar la excepción.
+            // En este caso, simplemente retornamos un mensaje de error genérico.
+            return back()->with('error', 'Ocurrió un error inesperado al intentar eliminar el laboratorio.');
+        }
     }
     // app/Http/Controllers/LaboratorioController.php (o donde esté esta función)
 
@@ -107,20 +117,17 @@ class LaboratorioController extends Controller
         $request->validate([
             'costo_analisis' => 'nullable|numeric|min:0',
             'tiempo_entrega_dias' => 'nullable|integer|min:0',
-            'fecha_entrega' => 'nullable|date', 
+            'fecha_entrega' => 'nullable|date',
         ]);
 
-        // 2. Preparar los datos Pivot
         $pivotData = [
             'costo_analisis' => $request->costo_analisis,
             'tiempo_entrega_dias' => $request->tiempo_entrega_dias,
             'fecha_entrega' => $request->fecha_entrega,
+            'estado' => LaboratorioProducto::ESTADO_INICIADO
         ];
 
         try {
-            // 3. Adjuntar (Attach) el producto con los datos pivot
-            // Aquí debes usar syncWithoutDetaching para adjuntar/actualizar.
-            // Asumiendo que `producto_id` es el ID del producto a adjuntar:
             $laboratorio->productos()->attach($request->producto_id, $pivotData);
 
             return redirect()->route('laboratorio.show', $laboratorio)
@@ -133,23 +140,33 @@ class LaboratorioController extends Controller
         }
     }
 
-    /**
-     * Remueve un producto del laboratorio.
-     * Ruta: DELETE /laboratorio/{laboratorio}/producto/detach/{producto}
-     */
-    // Ahora recibe LaboratorioProducto $pivotRecord
     public function detachProducto(Laboratorio $laboratorio, LaboratorioProducto $pivotRecord)
     {
+        try {
+            // Verificamos que el registro pivot pertenezca al laboratorio correcto (Seguridad)
+            if ($pivotRecord->laboratorio_id !== $laboratorio->id) {
+                return redirect()->back()->with('error', 'Registro de inventario no válido.');
+            }
+
+            // Usamos el método delete() del modelo para eliminar la fila específica.
+            $pivotRecord->delete();
+
+            return redirect()->route('laboratorio.show', $laboratorio)
+                ->with('success', 'Elemento de inventario removido del laboratorio.');
+        } catch (\Exception $e) {
+            if ($e->getCode() === '23000') {
+                // Mensaje personalizado para el usuario
+                return back()->with('error', 'strongError: No se puede eliminar el producto del laboratorio porque tiene documentos subidos');
+            }
+
+            // Si es otro tipo de error de consulta, puedes registrarlo o lanzar la excepción.
+            // En este caso, simplemente retornamos un mensaje de error genérico.
+            return back()->with('error', 'Ocurrió un error inesperado al intentar eliminar el producto.');
+        }
         // Verificamos que el registro pivot pertenezca al laboratorio correcto (Seguridad)
         if ($pivotRecord->laboratorio_id !== $laboratorio->id) {
             return redirect()->back()->with('error', 'Registro de inventario no válido.');
         }
-
-        // Usamos el método delete() del modelo para eliminar la fila específica.
-        $pivotRecord->delete();
-
-        return redirect()->route('laboratorio.show', $laboratorio)
-            ->with('success', 'Elemento de inventario removido del laboratorio.');
     }
 
     // 2. EDITAR PIVOT (Mostrar Formulario)

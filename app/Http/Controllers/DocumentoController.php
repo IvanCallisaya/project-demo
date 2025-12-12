@@ -6,9 +6,34 @@ use App\Models\Documento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\LaboratorioProducto; // Asegúrate de importar el modelo
+use Illuminate\Support\Facades\Log;
 
 class DocumentoController extends Controller
 {
+
+    public function index(Request $request)
+    {
+
+        $documentos = Documento::with([
+            'laboratorioProducto.laboratorio', 
+            'laboratorioProducto.producto', 
+        ]);
+
+        $searchQuery = $request->get('q');
+        if ($searchQuery) {
+            $documentos->where('nombre', 'LIKE', '%' . $searchQuery . '%');
+            $documentos->whereHas('laboratorioProducto.laboratorio.cliente', function($q) use ($searchQuery) {
+                $q->where('nombre', 'LIKE', '%' . $searchQuery . '%');
+            });
+        }
+
+        // 3. Obtener y Paginar los resultados
+        $docs = $documentos->paginate(10);
+        Log::info(json_encode($docs));
+
+        // 4. Devolver la vista
+        return view('configuracion.documento.index', compact('docs'));
+    }
 
     /**
      * Sube un documento a Google Drive y registra la URL en la base de datos.

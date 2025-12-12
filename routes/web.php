@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClienteEmpresaController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\ProductoController;
@@ -19,49 +20,52 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
+Route::get('/welcome', function () {
     return view('welcome');
-});
+})->name('welcome');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::resource('cliente_empresa', ClienteEmpresaController::class);
-Route::resource('laboratorio', LaboratorioController::class);
-Route::resource('producto', ProductoController::class);
-Route::resource('subcategoria', SubCategoriaController::class);
-
-Route::prefix('laboratorio/{laboratorio}/producto')->group(function () {
-
-    // POST: Adjuntar (Se mantiene igual, solo necesita {laboratorio} y 'producto_id' en el Request)
-    Route::post('attach', [LaboratorioController::class, 'attachProducto'])->name('laboratorio.producto.attach');
-
-    // DELETE: Remover (Ahora recibe el ID de la fila pivot)
-    Route::delete('detach/{pivotRecord}', [LaboratorioController::class, 'detachProducto'])->name('laboratorio.producto.detach');
-
-    // GET: Mostrar el formulario para editar el pivot específico.
-    Route::get('{pivotRecord}/edit-pivot', [LaboratorioController::class, 'editPivot'])->name('laboratorio.producto.edit_pivot');
-
-    // PUT/PATCH: Actualizar el pivot específico.
-    Route::put('{pivotRecord}/update-pivot', [LaboratorioController::class, 'updatePivot'])->name('laboratorio.producto.update_pivot');
-});
-
-Route::prefix('cliente_empresa/{clienteEmpresa}')->name('cliente.')->group(function () {
-    // 3. Laboratorios
-    Route::get('laboratorios', [ClienteEmpresaController::class, 'laboratoriosIndex'])->name('laboratorios.index');
-    // 5. Documentos
-    Route::get('documentos', [ClienteEmpresaController::class, 'documentosIndex'])->name('documentos.index');
-
-    // Puedes agregar más rutas aquí (ej: documentos, proyectos, etc.)
-});
-Route::post('/productos/{laboratorioProductoId}/documento/upload', [DocumentoController::class, 'subirDocumento'])
-    ->name('documento.subir');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::prefix('/')->group(function () {
+        Route::get('', [DashboardController::class, 'index'])->name('dashboard');
+    });
+
+    Route::resource('cliente_empresa', ClienteEmpresaController::class);
+    Route::resource('laboratorio', LaboratorioController::class);
+    Route::resource('producto', ProductoController::class);
+    Route::resource('subcategoria', SubCategoriaController::class);
+
+    Route::prefix('configuracion')->group(function () {
+        Route::get('/documento', [DocumentoController::class, 'index'])->name('configuracion.documento');
+    });
+    Route::prefix('laboratorio/{laboratorio}/producto')->group(function () {
+
+        // POST: Adjuntar (Se mantiene igual, solo necesita {laboratorio} y 'producto_id' en el Request)
+        Route::post('attach', [LaboratorioController::class, 'attachProducto'])->name('laboratorio.producto.attach');
+
+        // DELETE: Remover (Ahora recibe el ID de la fila pivot)
+        Route::delete('detach/{pivotRecord}', [LaboratorioController::class, 'detachProducto'])->name('laboratorio.producto.detach');
+
+        // GET: Mostrar el formulario para editar el pivot específico.
+        Route::get('{pivotRecord}/edit-pivot', [LaboratorioController::class, 'editPivot'])->name('laboratorio.producto.edit_pivot');
+
+        // PUT/PATCH: Actualizar el pivot específico.
+        Route::put('{pivotRecord}/update-pivot', [LaboratorioController::class, 'updatePivot'])->name('laboratorio.producto.update_pivot');
+    });
+
+    Route::prefix('cliente_empresa/{clienteEmpresa}')->name('cliente.')->group(function () {
+        // 3. Laboratorios
+        Route::get('laboratorios', [ClienteEmpresaController::class, 'laboratoriosIndex'])->name('laboratorios.index');
+        // 5. Documentos
+        Route::get('documentos', [ClienteEmpresaController::class, 'documentosIndex'])->name('documentos.index');
+
+        // Puedes agregar más rutas aquí (ej: documentos, proyectos, etc.)
+    });
+    Route::post('/productos/{laboratorioProductoId}/documento/upload', [DocumentoController::class, 'subirDocumento'])
+        ->name('documento.subir');
 });
 
 Route::resource('users', \App\Http\Controllers\UserController::class)

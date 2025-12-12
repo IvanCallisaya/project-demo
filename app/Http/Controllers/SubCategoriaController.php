@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SubCategoria;
 use App\Models\Categoria; // Necesario para el filtro opcional
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SubCategoriaController extends Controller
 {
@@ -168,9 +169,22 @@ class SubCategoriaController extends Controller
     /**
      * Elimina la subcategoría.
      */
-    public function destroy(SubCategoria $subcategoria)
+    public function destroy($id)
     {
-        $subcategoria->delete();
-        return redirect()->route('subcategoria.index')->with('success', 'Subcategoría eliminada.');
+        try {
+            $subcategoria = SubCategoria::findOrFail($id);
+            $subcategoria->delete();
+            Log::info("Intentando eliminar subcategoría ID: " . $subcategoria);
+            return redirect()->route('subcategoria.index')->with('success', 'Subcategoría eliminada.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23000') {
+                // Mensaje personalizado para el usuario
+                return back()->with('error', '🚫 **Error:** No se puede eliminar la subcategoria porque está asignado a uno o más productos.');
+            }
+
+            // Si es otro tipo de error de consulta, puedes registrarlo o lanzar la excepción.
+            // En este caso, simplemente retornamos un mensaje de error genérico.
+            return back()->with('error', 'Ocurrió un error inesperado al intentar eliminar la subcategoria.');
+        }
     }
 }

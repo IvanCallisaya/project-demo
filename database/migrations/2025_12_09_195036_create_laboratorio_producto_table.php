@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('costo_analisis', 10, 2)->nullable();
             $table->integer('tiempo_entrega_dias')->nullable();
             $table->date('fecha_entrega')->nullable();
-            $table->boolean('estado')->default(true);
+            $table->tinyInteger('estado')->default(1);
             $table->timestamps();
         });
     }

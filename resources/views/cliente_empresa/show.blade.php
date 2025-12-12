@@ -7,6 +7,15 @@
 
     @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
+    <a href="javascript:history.back()"
+        class="btn btn-secondary mb-3 shadow-sm"
+        style="border-radius: 8px;">
+
+        {{-- Icono de flecha hacia la izquierda --}}
+        <i class="fas fa-arrow-left me-2"></i>
+
+        Volver Atrás
+    </a>
     <div class="card">
 
         {{-- BLOQUE 1: ENCABEZADO Y DATOS ESENCIALES (El mismo diseño ampliado) --}}
@@ -37,7 +46,7 @@
         {{-- ================================================= --}}
         {{-- BLOQUE 2: MENÚ DE NAVEGACIÓN DINÁMICO (Ajustado a tu diseño) --}}
         {{-- ================================================= --}}
-        <div class="card-header p-0 pt-3 border-bottom">
+        <div class="card-header border-bottom">
             {{-- Usamos nav-pills o nav-tabs; aquí usamos nav-tabs con enlaces --}}
             <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
 
@@ -60,7 +69,7 @@
                 {{-- 4. PESTAÑA DOCUMENTOS --}}
                 <li class="nav-item">
                     <a href="{{ route('cliente.documentos.index', $clienteEmpresa->id) }}"
-                        class="nav-link @if($currentView === 'historial') active @endif">
+                        class="nav-link @if($currentView === 'documentos') active @endif">
                         <i class="fa-solid fa-clock-rotate-left me-1"></i> Documentos
                     </a>
                 </li>

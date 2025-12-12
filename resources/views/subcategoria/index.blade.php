@@ -4,6 +4,11 @@
 
 @section('content')
 <div class="container-fluid">
+    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+    @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+    @if($errors->any())
+    <div class="alert alert-danger">Error: Revise los campos del formulario de asignación.</div>
+    @endif
 
     <h1>Subcategorías</h1>
 

@@ -24,6 +24,7 @@
         "@fullcalendar/interaction": "^6.1.19",
         "@fullcalendar/list": "^6.1.19",
         "@fullcalendar/timegrid": "^6.1.19",
+        "@popperjs/core": "^2.11.8",
         "admin-lte": "3.2",
         "bootstrap": "^5.3.8",
         "jquery": "^3.7.1"

@@ -88,7 +88,7 @@
                 </tbody>
             </table>
 
-            <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="card-footer d-flex justify-content-between">
                 <div>Mostrando {{ $subcategorias->firstItem() ?? 0 }} - {{ $subcategorias->lastItem() ?? 0 }} de {{ $subcategorias->total() }}</div>
                 <div>{{ $subcategorias->links() }}</div>
             </div>

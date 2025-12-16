@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Traits\MultiTenantScope;
 
 class Categoria extends Model
 {
-    use HasFactory;
+    use MultiTenantScope;
 
     protected $table = 'categoria'; // Por defecto, pero se especifica
 

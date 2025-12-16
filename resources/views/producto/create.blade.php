@@ -14,7 +14,7 @@
                 @php $producto = new \App\Models\Producto(); @endphp
 
                 {{-- Incluir el formulario reutilizable --}}
-                @include('producto.form', ['producto' => $producto, 'subcategorias' => $subcategorias])
+                @include('producto.form', ['producto' => $producto, 'subcategorias' => $subcategorias, 'unidades' => $unidadMedida])
                 <div class="mt-4">
                     <button type="submit" class="btn btn-success text-white">Guardar</button>
                     <a href="{{ route('producto.index') }}" class="btn btn-secondary">Cancelar</a>

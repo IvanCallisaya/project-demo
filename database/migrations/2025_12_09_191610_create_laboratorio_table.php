@@ -10,18 +10,17 @@ return new class extends Migration
     {
         Schema::create('laboratorio', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cliente_empresa_id')->nullable()->constrained('cliente_empresa');
+            $table->foreignId('cliente_empresa_id')->constrained('cliente_empresa');
+            $table->foreignId('empresa_id')->constrained('empresa');
             $table->string('nombre');
-            $table->string('responsable')->nullable(); // responsable técnico
-            $table->string('registro_senasag')->nullable(); // nro de registro sanitario
+            $table->string('responsable')->nullable();
+            $table->string('registro_senasag')->nullable();
             $table->string('telefono')->nullable();
             $table->string('email')->nullable();
             $table->string('ciudad')->nullable();
             $table->string('direccion')->nullable();
-
-            $table->string('categoria')->nullable(); // Ej: fertilizantes, agroquímicos, alimentos balanceados
-            $table->string('estado')->default('Activo'); // Activo / Inactivo
-
+            $table->string('categoria')->nullable();
+            $table->boolean('estado')->default('1');
             $table->text('observaciones')->nullable();
 
             $table->timestamps();

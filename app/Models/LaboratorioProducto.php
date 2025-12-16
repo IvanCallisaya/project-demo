@@ -2,19 +2,22 @@
 
 namespace App\Models;
 
+use App\Models\Traits\MultiTenantScope;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class LaboratorioProducto extends Pivot
 {
-    // Opcional: Especificar la tabla y el fillable
+    use MultiTenantScope;
     protected $table = 'laboratorio_producto'; 
     protected $fillable = [
         'laboratorio_id', 
         'producto_id', 
-        'costo_analisis', 
+        'costo_analisis',
+        'fecha_recepcion',
         'tiempo_entrega_dias',
         'fecha_entrega',
         'estado',
+        'empresa_id',
     ]; 
     const ESTADO_INACTIVO = 0;
     const ESTADO_INICIADO = 1;

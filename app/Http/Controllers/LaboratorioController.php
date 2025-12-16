@@ -6,6 +6,7 @@ use App\Models\Laboratorio;
 use App\Models\ClienteEmpresa;
 use App\Models\LaboratorioProducto;
 use App\Models\Producto;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -29,7 +30,7 @@ class LaboratorioController extends Controller
         return view('laboratorio.index', compact('labs', 'perPage'));
     }
 
-    public function create(Request $r, $cliente_empresa_id = 1)
+    public function create(Request $r)
     {
 
         $clientes = ClienteEmpresa::orderBy('id')->get();
@@ -117,13 +118,23 @@ class LaboratorioController extends Controller
         $request->validate([
             'costo_analisis' => 'nullable|numeric|min:0',
             'tiempo_entrega_dias' => 'nullable|integer|min:0',
-            'fecha_entrega' => 'nullable|date',
+            'fecha_recepcion' => 'nullable|date',
         ]);
+
+        $fechaRecepcion = Carbon::parse($request->fecha_recepcion);
+
+        // Calcular la fecha de entrega
+        // Si $request->tiempo_entrega_dias es null o 0, sumará 0 días.
+        $tiempoDias = (int) $request->tiempo_entrega_dias;
+        $fechaEntregaCalculada = $fechaRecepcion->copy()->addDays($tiempoDias);
+
+        // Sumar los días a la fecha de recepción
 
         $pivotData = [
             'costo_analisis' => $request->costo_analisis,
             'tiempo_entrega_dias' => $request->tiempo_entrega_dias,
-            'fecha_entrega' => $request->fecha_entrega,
+            'fecha_recepcion' => $request->fecha_recepcion,
+            'fecha_entrega' => $fechaEntregaCalculada,
             'estado' => LaboratorioProducto::ESTADO_INICIADO
         ];
 
@@ -200,13 +211,21 @@ class LaboratorioController extends Controller
         $request->validate([
             'costo_analisis' => 'nullable|decimal:0,2',
             'tiempo_entrega_dias' => 'nullable|integer',
-            'fecha_entrega' => 'nullable|date',
+            'fecha_recepcion' => 'nullable|date',
         ]);
+
+        $fechaRecepcion = Carbon::parse($request->fecha_recepcion);
+
+        // Calcular la fecha de entrega
+        // Si $request->tiempo_entrega_dias es null o 0, sumará 0 días.
+        $tiempoDias = (int) $request->tiempo_entrega_dias;
+        $fechaEntregaCalculada = $fechaRecepcion->copy()->addDays($tiempoDias);
 
         $pivotData = [
             'costo_analisis' => $request->costo_analisis,
             'tiempo_entrega_dias' => $request->tiempo_entrega_dias,
-            'fecha_entrega' => $request->fecha_entrega,
+            'fecha_recepcion' => $request->fecha_recepcion,
+            'fecha_entrega' => $fechaEntregaCalculada,
         ];
 
         // Usamos el método update() del modelo pivot

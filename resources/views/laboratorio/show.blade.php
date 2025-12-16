@@ -12,6 +12,8 @@
     <div class="alert alert-danger">Error: Revise los campos del formulario de asignación.</div>
     @endif
 
+    <div id="main-alerts"></div>
+
     {{-- BOTÓN DE RETORNO --}}
     <a href="javascript:history.back()"
         class="btn btn-secondary mb-3 shadow-sm"
@@ -117,7 +119,8 @@
                             <th>U. de medida</th>
                             <th>Código</th>
                             <th>Costo Análisis</th>
-                            <th>Tiempo Entrega (Días)</th>
+                            <th>Fecha Recepción</th>
+                            <th>T. Entrega (Días)</th>
                             <th>Fecha Entrega</th>
                             <th>Estado</th>
                             <th style="min-width: 280px;">Acciones</th>
@@ -130,6 +133,7 @@
                             <td>{{ $p->unidad_medida }}</td>
                             <td>{{ $p->codigo }}</td>
                             <td>{{ $p->pivot->costo_analisis }}</td>
+                            <td>{{ $p->pivot->fecha_recepcion}}</td>
                             <td>{{ $p->pivot->tiempo_entrega_dias}}</td>
                             <td>{{ $p->pivot->fecha_entrega}}</td>
                             <td>
@@ -160,9 +164,20 @@
                                             </div>
 
                                             {{-- FORMULARIO DE SUBIDA --}}
-                                            <form action="{{ route('documento.subir', $p->pivot->id ) }}" method="POST" enctype="multipart/form-data">
+                                            <form id="uploadForm{{ $p->pivot->id }}" action="{{ route('documento.subir', $p->pivot->id ) }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
                                                 <div class="modal-body">
+                                                    <div class="progress mb-3 d-none" id="progressBarContainer{{ $p->pivot->id }}">
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                            role="progressbar"
+                                                            id="progressBar{{ $p->pivot->id }}"
+                                                            style="width: 0%"
+                                                            aria-valuenow="0"
+                                                            aria-valuemin="0"
+                                                            aria-valuemax="100">
+                                                            0%
+                                                        </div>
+                                                    </div>
                                                     <div class="form-group mb-3">
                                                         <label for="documento_{{ $p->pivot->id }}">Archivo (máx 20MB)</label>
                                                         <input type="file" class="form-control-file" id="documento_{{ $p->pivot->id }}" name="documento" required>
@@ -180,7 +195,7 @@
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                    <button type="submit" class="btn btn-primary">Subir y Guardar</button>
+                                                    <button type="submit" class="btn btn-primary" id="uploadButton{{ $p->pivot->id }}">Subir y Guardar</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -206,7 +221,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted">No hay productos asignados a este laboratorio.</td>
+                            <td colspan="12" class="text-center text-muted">No hay productos asignados a este laboratorio.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -236,9 +251,16 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label">Costo Análisis</label>
+                        <label class="form-label">Costo</label>
                         <input type="number" name="costo_analisis" class="form-control @error('costo_analisis') is-invalid @enderror" value="{{ old('costo_analisis') }}" step="0.01" min="0" />
                         @error('costo_analisis') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    {{-- Fecha Entrega --}}
+                    <div class="col-md-2">
+                        <label class="form-label">Fecha Recepción</label>
+                        <input type="date" name="fecha_recepcion" class="form-control @error('fecha_recepcion') is-invalid @enderror" value="{{ old('fecha_recepcion') }}" />
+                        @error('fecha_recepcion') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     {{-- Tiempo Entrega Dias --}}
@@ -248,12 +270,6 @@
                         @error('tiempo_entrega_dias') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    {{-- Fecha Entrega --}}
-                    <div class="col-md-2">
-                        <label class="form-label">Fecha Entrega</label>
-                        <input type="date" name="fecha_entrega" class="form-control @error('fecha_entrega') is-invalid @enderror" value="{{ old('fecha_entrega') }}" />
-                        @error('fecha_entrega') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
 
                     <div class="col-md-2">
                         <button class="btn btn-primary w-100"><i class="fas fa-plus me-1"></i> Asignar</button>
@@ -268,15 +284,116 @@
 @endsection
 @push('js')
 <script>
-    // Aquí iría la inicialización de Select2 si la estás usando
-    // Ejemplo:
-    /*
-        $(document).ready(function() {
-            $('.select2').select2({
-                theme: 'bootstrap4',
-                width: '100%'
+    // Función para manejar la subida de archivos vía AJAX
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log(typeof bootstrap);
+        // Selecciona todos los formularios que empiezan con 'uploadForm'
+        document.querySelectorAll('form[id^="uploadForm"]').forEach(form => {
+
+            const pivotId = form.id.replace('uploadForm', '');
+            const progressBarContainer = document.getElementById('progressBarContainer' + pivotId);
+            const progressBar = document.getElementById('progressBar' + pivotId);
+            const uploadButton = document.getElementById('uploadButton' + pivotId);
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Detener el envío normal del formulario
+
+                // Crear objeto FormData con los datos del formulario
+                const formData = new FormData(form);
+
+                // Mostrar la barra de progreso y deshabilitar el botón
+                progressBarContainer.classList.remove('d-none');
+                progressBar.style.width = '0%';
+                progressBar.textContent = '0%';
+                uploadButton.disabled = true;
+
+                // Crear objeto XMLHttpRequest (AJAX)
+                const xhr = new XMLHttpRequest();
+
+                // 1. Monitorear el progreso de la subida
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = percentComplete + '%';
+                        progressBar.textContent = percentComplete + '%';
+                    }
+                });
+
+                // 2. Manejar la respuesta del servidor
+                xhr.onload = function() {
+                    uploadButton.disabled = false;
+                    progressBarContainer.classList.add('d-none');
+
+                    // Obtener el contenedor de alertas
+                    const alertsContainer = document.getElementById('main-alerts');
+                    const modalElement = document.getElementById('uploadModal' + pivotId);
+
+                    if (xhr.status === 200 || xhr.status === 201) {
+
+                        try {
+                            // Intentamos parsear la respuesta JSON del servidor
+                            const response = JSON.parse(xhr.responseText);
+
+                            if (response.success && alertsContainer) {
+
+                                // 1. Mostrar la alerta de Bootstrap
+                                const alertHtml = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    ${response.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">x</button>
+                    </div>
+                    `;
+                                alertsContainer.innerHTML = alertHtml;
+
+                                // 2. Ocultar el modal manualmente
+                                console.log(typeof bootstrap);
+                                if (modalElement && window.bootstrap) {
+                                    const modalInstance = bootstrap.Modal.getInstance(modalElement) ||
+                                        new bootstrap.Modal(modalElement);
+                                    modalInstance.hide();
+                                }
+                                document.body.classList.remove('modal-open');
+                                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+
+                                // Opcional: Recargar la página si los datos de la tabla padre no se actualizan dinámicamente
+                                // window.location.reload(); 
+                            }
+
+                        } catch (e) {
+                            // Si el servidor devuelve una respuesta 200/201 pero no es JSON (ej: HTML),
+                            // lo manejamos como error, pero cerramos el modal si se subió.
+                            console.error('Error al parsear JSON después de la subida:', e);
+
+                            // Cerramos el modal para evitar que el usuario se quede estancado
+                            if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                                const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                                modalInstance.hide();
+                            }
+
+                            alert('¡Subida completada, pero hubo un error de comunicación!');
+                        }
+
+                    } else {
+                        // ... (Tu manejo de error original)
+                        alert('Error al subir el archivo. Por favor, revise los datos e intente de nuevo.');
+                        console.error('Error del servidor:', xhr.responseText);
+                    }
+                };
+
+                // 3. Manejar errores de conexión
+                xhr.onerror = function() {
+                    uploadButton.disabled = false;
+                    progressBarContainer.classList.add('d-none');
+                    alert('Error de red o conexión al subir el archivo.');
+                };
+
+                // 4. Enviar la solicitud POST
+                xhr.open('POST', form.action);
+                // Laravel requiere que el token CSRF vaya en el header para solicitudes AJAX
+                xhr.setRequestHeader('X-CSRF-TOKEN', formData.get('_token'));
+                xhr.send(formData);
             });
         });
-    */
+    });
 </script>
 @endpush

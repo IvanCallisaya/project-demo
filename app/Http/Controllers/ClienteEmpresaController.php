@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClienteEmpresa;
-use App\Models\ContactoCliente;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
@@ -51,7 +50,6 @@ class ClienteEmpresaController extends Controller
             'nombre_contacto_principal' => $request->nombre_contacto_principal,
             'email_principal' => $request->email_principal,
             'telefono_principal' => $request->telefono_principal,
-            'empresa_id' => 1,
             'imagen' => $rutaImagen,
         ]);
 

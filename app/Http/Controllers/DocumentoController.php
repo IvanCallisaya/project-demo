@@ -15,14 +15,14 @@ class DocumentoController extends Controller
     {
 
         $documentos = Documento::with([
-            'laboratorioProducto.laboratorio', 
-            'laboratorioProducto.producto', 
+            'laboratorioProducto.laboratorio',
+            'laboratorioProducto.producto',
         ]);
 
         $searchQuery = $request->get('q');
         if ($searchQuery) {
             $documentos->where('nombre', 'LIKE', '%' . $searchQuery . '%');
-            $documentos->whereHas('laboratorioProducto.laboratorio.cliente', function($q) use ($searchQuery) {
+            $documentos->whereHas('laboratorioProducto.laboratorio.cliente', function ($q) use ($searchQuery) {
                 $q->where('nombre', 'LIKE', '%' . $searchQuery . '%');
             });
         }
@@ -103,7 +103,10 @@ class DocumentoController extends Controller
             }
 
             // Respuesta final
-            return back()->with('success', '✅ Documento subido a Google Drive y registrado exitosamente. URL: ' . $data['url_drive']);
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Documento subido y datos guardados correctamente.',
+            ]);
         } else {
             // La API de Node.js falló. Obtenemos el mensaje de error del JSON (si existe)
             $errorData = $response->json();

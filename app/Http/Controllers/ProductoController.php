@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Producto;
 use App\Models\SubCategoria;
+use App\Models\UnidadMedida;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule; 
 
 class ProductoController extends Controller
@@ -23,14 +25,19 @@ class ProductoController extends Controller
         }
 
         $productos = $query->orderBy('nombre')->paginate($perPage)->withQueryString();
-        $productos->load('subcategoria'); 
+        $productos->load('subcategoria');
+        $productos->load('unidadMedida');
+        
         return view('producto.index', compact('productos'));
     }
 
     public function create()
     {
-        $subcategorias = SubCategoria::orderBy('nombre')->get();
-        return view('producto.create', compact('subcategorias'));
+        $subcategorias = SubCategoria::orderBy('id')->get();
+        $subcategorias->load('categoria');
+        $unidadMedida = UnidadMedida::orderBy('id')->get();
+        Log::info($subcategorias);
+        return view('producto.create', compact('subcategorias', 'unidadMedida'));
     }
 
     public function store(Request $r)
@@ -39,9 +46,7 @@ class ProductoController extends Controller
             'codigo' => 'nullable|string|max:50|unique:producto,codigo',
             'nombre' => 'required|string|max:191',
             'subcategoria_id' => 'required|exists:subcategoria,id',
-            'categoria' => 'nullable|string',
-            'unidad_medida' => 'nullable|string|max:50',
-            'precio' => 'nullable|numeric',
+            'unidad_medida_id' => 'nullable|numeric',
         ]);
 
         $producto = Producto::create($data);
@@ -61,8 +66,9 @@ class ProductoController extends Controller
 
     public function edit(Producto $producto)
     {
-        $subcategorias = SubCategoria::orderBy('nombre')->get();
-        return view('producto.edit', compact('producto', 'subcategorias'));
+        $subcategorias = SubCategoria::orderBy('id')->get();
+        $unidadMedida = UnidadMedida::orderBy('id')->get();
+        return view('producto.edit', compact('producto', 'subcategorias', 'unidadMedida'));
     }
 
     public function update(Request $r, Producto $producto)
@@ -71,8 +77,7 @@ class ProductoController extends Controller
             'codigo' => ['nullable', 'string', 'max:50', Rule::unique('producto', 'codigo')->ignore($producto->id)],
             'nombre' => 'required|string|max:191',
             'subcategoria_id' => 'required|exists:subcategoria,id',
-            'unidad_medida' => 'nullable|string|max:50',
-            'precio' => 'nullable|numeric',
+            'unidad_medida_id' => 'nullable|numeric',
         ]);
         
         $producto->update($data);

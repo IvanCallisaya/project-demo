@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('fecha_plazo_entrega')->nullable();
             $table->date('fecha_recojo')->nullable();
             $table->timestamps();
+            $table->foreignId('empresa_id')->constrained('empresa');
         });
     }
 

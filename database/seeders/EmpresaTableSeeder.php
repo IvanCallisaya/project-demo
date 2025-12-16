@@ -26,6 +26,16 @@ class EmpresaTableSeeder extends Seeder
             $permission->direccion = 'Avenida 4to Anillo, Nro. 4180, Barrio Hamacas, Plan 12, UV: 65, Mza: 22, entre Av. Banzer y Av. Beni';
             $permission->telefono = '+59173194745';
             $permission->save();
+
+            $permission = new Empresa();
+            $permission->id = 2;
+            $permission->nombre_comercial = 'Empresa 2';
+            $permission->razon_social = 'Empresa2 SA';
+            $permission->nit = '892797190';
+            $permission->direccion = 'Empresa 2';
+            $permission->telefono = '+5918738483';
+            $permission->save();
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();

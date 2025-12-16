@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Traits\MultiTenantScope;
 use Illuminate\Database\Eloquent\Model;
 
 class ContactoCliente extends Model
 {
+    use MultiTenantScope;
     protected $table = 'contactos_cliente';
 
     protected $fillable = [
@@ -13,6 +15,7 @@ class ContactoCliente extends Model
         'nombre',
         'email',
         'telefono',
+        'empresa_id',
     ];
 
     public function empresa()

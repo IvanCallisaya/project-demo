@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Traits\MultiTenantScope;
 use Illuminate\Database\Eloquent\Model;
 
 class ClienteEmpresa extends Model
 {
+    use MultiTenantScope;
     protected $table = 'cliente_empresa';
 
     protected $fillable = [

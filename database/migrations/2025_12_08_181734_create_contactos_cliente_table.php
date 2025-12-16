@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('cliente_empresa_id')
                 ->constrained('cliente_empresa')
                 ->onDelete('cascade');
-
+            $table->foreignId('empresa_id')->constrained('empresa');
             $table->string('nombre');
             $table->string('email')->nullable();
             $table->string('telefono')->nullable();

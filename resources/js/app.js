@@ -1,8 +1,9 @@
 import "./bootstrap";
 
 import "jquery";
-import "popper.js";
-import "bootstrap";
+import * as bootstrap from "bootstrap";
+window.bootstrap = bootstrap;
+
 
 // 2. Importar el Script de AdminLTE
 import "admin-lte";

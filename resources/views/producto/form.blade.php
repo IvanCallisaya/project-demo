@@ -14,7 +14,7 @@
             @foreach($subcategorias as $subcategoria)
             <option value="{{ $subcategoria->id }}"
                 {{ old('subcategoria_id', $producto->subcategoria_id ?? '') == $subcategoria->id ? 'selected' : '' }}>
-                {{ $subcategoria->nombre }}
+                {{ $subcategoria->categoria->nombre .' | '. $subcategoria->nombre  }}
             </option>
             @endforeach
         </select>
@@ -47,20 +47,19 @@
 
     {{-- Campo Unidad de Medida --}}
     <div class="col-md-6 mb-3">
-        <label for="unidad_medida" class="form-label">Unidad de Medida</label>
-        <input type="text" name="unidad_medida" id="unidad_medida"
-            class="form-control @error('unidad_medida') is-invalid @enderror"
-            value="{{ old('unidad_medida', $producto->unidad_medida ?? '') }}">
-        @error('unidad_medida')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
+        <label for="unidad_medida_id" class="form-label">Unidad de medida</label>
+        <select name="unidad_medida_id" class="form-control">
+            @foreach ($unidades as $unidad)
+            <option value="{{ $unidad->id }}" @selected($producto->unidad_medida_id == $unidad->id)>
+                {{ $unidad->nombre }} ({{ $unidad->simbolo }})
+            </option>
+            @endforeach
+        </select>
     </div>
 
 
-    
 </div>
 <div class="form-group">
-        <label>Descripcion</label>
-        <textarea name="descripcion" class="form-control" rows="3">{{ old('descripcion', $producto->descripcion ?? '') }}</textarea>
-    </div>
-
+    <label>Descripcion</label>
+    <textarea name="descripcion" class="form-control" rows="3">{{ old('descripcion', $producto->descripcion ?? '') }}</textarea>
+</div>

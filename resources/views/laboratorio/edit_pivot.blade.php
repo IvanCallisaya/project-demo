@@ -26,17 +26,18 @@
                     </div>
 
                     {{-- Tiempo Entrega (Fecha) --}}
+                    <div class="col-md-2">
+                        <label class="form-label">Fecha Recepción</label>
+                        <input type="date" name="fecha_recepcion" class="form-control @error('fecha_recepcion') is-invalid @enderror" value="{{ old('fecha_recepcion', $pivotRecord->fecha_recepcion) }}" />
+                        @error('fecha_recepcion') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Tiempo Entrega Días</label>
                         <input type="number" name="tiempo_entrega_dias" class="form-control @error('tiempo_entrega_dias') is-invalid @enderror"
                             value="{{ old('tiempo_entrega_dias', $pivotRecord->tiempo_entrega_dias) }}" />
                         @error('tiempo_entrega_dias') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Fecha Entrega</label>
-                        <input type="date" name="fecha_entrega" class="form-control @error('fecha_entrega') is-invalid @enderror" value="{{ old('fecha_entrega', $pivotRecord->fecha_entrega) }}" />
-                        @error('fecha_entrega') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
+
                 </div>
 
                 <div class="mt-4">

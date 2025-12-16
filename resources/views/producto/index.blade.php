@@ -42,7 +42,7 @@
                     <tr>
                         <th>Código</th>
                         <th>Nombre</th>
-                        <th>Unidad Medida</th>
+                        <th>Unidad de Medida</th>
                         <th>Subcategoria</th>
                         <th>Acciones</th>
                     </tr>
@@ -52,7 +52,7 @@
                     <tr>
                         <td>{{ $p->codigo }}</td>
                         <td>{{ $p->nombre }}</td>
-                        <td>{{ $p->unidad_medida }}</td>
+                        <td>{{ $p->unidadMedida->nombre }}</td>
                         <td>{{ $p->subcategoria->nombre }}</td>
                         <td>
                             <a href="{{ route('producto.edit',$p->id) }}" class="btn btn-sm btn-warning"><i class="fa-regular fa-pen-to-square" style="color: white;"></i></a>

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('last_name');
-            $table->foreignId('empresa_id')->nullable()->constrained('empresa');
+            $table->foreignId('empresa_id')->constrained('empresa');
             $table->string('email')->unique();
             $table->string('password');
             $table->rememberToken();

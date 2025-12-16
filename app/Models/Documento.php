@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\MultiTenantScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Documento extends Model
 {
+    use MultiTenantScope;
     protected $table = 'documento';
     protected $fillable = [
         'laboratorio_producto_id',
@@ -14,6 +16,7 @@ class Documento extends Model
         'url',
         'fecha_plazo_entrega',
         'fecha_recojo',
+        'empresa_id',
     ];
 
     public function laboratorioProducto()

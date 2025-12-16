@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('categoria_id')->nullable()->constrained('categoria');
             $table->string('nombre', 100);
-            $table->string('codigo', 10)->nullable(); // Tu campo CODH
+            $table->string('codigo', 10)->nullable();
+            $table->foreignId('empresa_id')->constrained('empresa');
             $table->timestamps();
         });
     }

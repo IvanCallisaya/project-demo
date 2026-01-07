@@ -6,11 +6,41 @@
 <div class="container-fluid">
 
     {{-- MENSAJES DE ALERTA --}}
-    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-    @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-    @if($errors->any())
-    <div class="alert alert-danger">Error: Revise los campos del formulario de asignación.</div>
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if($errors->any())
+    {{-- AÑADIR fade show y alert-dismissible a la alerta de errores de validación --}}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        Error: Revise los campos del formulario de asignación.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+
+            <div class="flex-grow-1 me-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Error de Validación:</strong> Revise los campos del formulario de asignación.
+            </div>
+
+            {{-- EL CÓDIGO CORRECTO: usa btn-close-white y no tiene contenido extra --}}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Cerrar">x</button>
+
+    </div>
+
 
     <div id="main-alerts"></div>
 
@@ -394,6 +424,36 @@
                 xhr.send(formData);
             });
         });
+        const autoHideTime = 5000; // 5 segundos
+
+        // Seleccionar todas las alertas de sesión y de errores de validación
+        // Buscamos '.alert' que tenga las clases de color
+        const sessionAlerts = document.querySelectorAll('.alert-success, .alert-danger');
+
+        sessionAlerts.forEach(alertElement => {
+            // Asegúrate de que la alerta es de las que queremos cerrar automáticamente
+            if (alertElement.classList.contains('fade') && alertElement.classList.contains('show')) {
+
+                // Si son errores de validación, quizás es mejor no cerrarlos para que el usuario pueda ver
+                // Pero si quieres cerrarlos, mantén el setTimeout.
+                // Si la alerta contiene errores de validación ($errors->any), la mantendremos más tiempo.
+                const timeToHide = alertElement.innerHTML.includes("Revise los campos") ? 8000 : autoHideTime;
+
+                setTimeout(() => {
+                    // Usamos la API de Bootstrap para cerrar la alerta con una transición suave
+                    // Verificamos que bootstrap.Alert exista (dependencia de Bootstrap JS)
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                        const bsAlert = bootstrap.Alert.getInstance(alertElement) || new bootstrap.Alert(alertElement);
+                        bsAlert.close();
+                    } else {
+                        // Solución fallback si el JS de Bootstrap no carga (solo oculta el elemento)
+                        alertElement.style.display = 'none';
+                    }
+                }, timeToHide);
+            }
+        });
     });
+
+    // --- CÓDIGO PARA OCULTAR ALERTAS AUTOMÁTICAMENTE ---
 </script>
 @endpush

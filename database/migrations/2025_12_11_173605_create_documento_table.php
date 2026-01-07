@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('documento', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('laboratorio_producto_id')->nullable()->constrained('laboratorio_producto');
+            $table->foreignId('producto_id')->nullable()->constrained('producto');
             $table->string('nombre');
             $table->string('url');
             $table->date('fecha_plazo_entrega')->nullable();

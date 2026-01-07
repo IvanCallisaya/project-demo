@@ -6,26 +6,30 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('cliente_empresa', function (Blueprint $table) {
+        Schema::create('sucursal', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('cliente_empresa_id')->constrained('cliente_empresa');
             $table->string('nombre');
-            $table->string('nit');
             $table->string('direccion')->nullable();
             $table->string('nombre_contacto_principal')->nullable();
             $table->string('email_principal')->nullable();
             $table->string('telefono_principal')->nullable();
-            $table->foreignId('empresa_id')->constrained('empresa');
-            $table->string('imagen')->nullable();
-            $table->string('id_padron')->nullable();
             $table->string('url_carpeta_drive')->nullable();
+            $table->foreignId('empresa_id')->constrained('empresa');
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('cliente_empresa');
+        Schema::dropIfExists('sucursal');
     }
 };

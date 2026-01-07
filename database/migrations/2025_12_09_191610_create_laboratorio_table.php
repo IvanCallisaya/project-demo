@@ -13,16 +13,9 @@ return new class extends Migration
             $table->foreignId('cliente_empresa_id')->constrained('cliente_empresa');
             $table->foreignId('empresa_id')->constrained('empresa');
             $table->string('nombre');
-            $table->string('responsable')->nullable();
-            $table->string('registro_senasag')->nullable();
             $table->string('telefono')->nullable();
             $table->string('email')->nullable();
-            $table->string('ciudad')->nullable();
-            $table->string('direccion')->nullable();
-            $table->string('categoria')->nullable();
-            $table->boolean('estado')->default('1');
-            $table->text('observaciones')->nullable();
-
+            $table->string('pais')->nullable();
             $table->timestamps();
         });
     }

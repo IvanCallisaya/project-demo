@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('unidad_medida', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 50)->unique();
-            $table->string('simbolo', 10)->unique();
+            $table->string('nombre', 50);
+            $table->string('simbolo', 10);
             $table->text('descripcion')->nullable();
             $table->foreignId('empresa_id')->constrained('empresa');
             $table->timestamps();

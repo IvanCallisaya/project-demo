@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Laboratorio;
 use App\Models\ClienteEmpresa;
 use App\Models\LaboratorioProducto;
+use Monarobase\CountryList\CountryListFacade as Countries;
 use App\Models\Producto;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class LaboratorioController extends Controller
         $perPage = (int) ($r->query('per_page', 10));
         $q = $r->query('q');
 
-        $query = Laboratorio::query()->withCount('productos');
+        $query = Laboratorio::query();
 
         if ($q) {
             $query->where('nombre', 'like', "%{$q}%");
@@ -34,8 +35,9 @@ class LaboratorioController extends Controller
     {
 
         $clientes = ClienteEmpresa::orderBy('id')->get();
+        $paises = Countries::getList('es');
         Log::info("Cliente empresa ID para crear laboratorio: " . $clientes);
-        return view('laboratorio.create', compact('clientes'));
+        return view('laboratorio.create', compact('clientes', 'paises'));
     }
 
     public function store(Request $request)
@@ -44,15 +46,9 @@ class LaboratorioController extends Controller
             [
                 'cliente_empresa_id' => $request->cliente_empresa_id,
                 'nombre' => $request->nombre,
-                'responsable' => $request->responsable,
-                'registro_senasag' => $request->registro_senasag,
-                'telefono' => $request->telefono,
+                'pais' => $request->pais,
                 'email' => $request->email,
-                'ciudad' => $request->ciudad,
-                'direccion' => $request->direccion,
-                'categoria' => $request->categoria,
-                'estado' => 1,
-                'observaciones' => $request->observaciones,
+                'telefono' => $request->telefono,
             ]
         );
         return redirect()->route('laboratorio.index')
@@ -63,7 +59,8 @@ class LaboratorioController extends Controller
     {
         $laboratorio = Laboratorio::findOrFail($laboratorio_id);
         $clientes = ClienteEmpresa::orderBy('nombre')->get();
-        return view('laboratorio.edit', compact('laboratorio', 'clientes'));
+        $paises = Countries::getList('es');
+        return view('laboratorio.edit', compact('laboratorio', 'clientes', 'paises'));
     }
 
     public function update(Request $request, $id)
@@ -71,16 +68,11 @@ class LaboratorioController extends Controller
         $laboratorio = Laboratorio::findOrFail($id);
 
         $laboratorio->update($request->only([
+            'cliente_empresa_id',
             'nombre',
-            'responsable',
-            'registro_senasag',
-            'telefono',
+            'pais',
             'email',
-            'ciudad',
-            'direccion',
-            'categoria',
-            'estado',
-            'observaciones'
+            'telefono',
         ]));
         return redirect()->route('laboratorio.index', $laboratorio->id)->with('success', 'Actualizado.');
     }

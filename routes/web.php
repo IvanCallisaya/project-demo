@@ -7,6 +7,7 @@ use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubCategoriaController;
+use App\Http\Controllers\SucursalController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,9 +36,14 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('cliente_empresa', ClienteEmpresaController::class);
     Route::resource('laboratorio', LaboratorioController::class);
+    Route::get('presolicitud', [ProductoController::class, 'preSolicitudIndex'])->name('presolicitud.index');
+    Route::get('presolicitud/create', [ProductoController::class, 'preSolicitudCreate'])->name('presolicitud.create');
+    Route::post('presolicitud', [ProductoController::class, 'preSolicitudStore'])->name('presolicitud.store');
+    Route::patch('/producto/{id}/cambiar-estado', [ProductoController::class, 'cambiarEstado'])->name('producto.cambiarEstado');
     Route::resource('producto', ProductoController::class);
     Route::resource('subcategoria', SubCategoriaController::class);
-
+    Route::resource('sucursal', SucursalController::class);
+    
     Route::prefix('configuracion')->group(function () {
         Route::get('/documento', [DocumentoController::class, 'index'])->name('configuracion.documento');
     });
@@ -59,6 +65,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('cliente_empresa/{clienteEmpresa}')->name('cliente.')->group(function () {
         // 3. Laboratorios
         Route::get('laboratorios', [ClienteEmpresaController::class, 'laboratoriosIndex'])->name('laboratorios.index');
+        Route::get('sucursales', [ClienteEmpresaController::class, 'sucursalesIndex'])->name('sucursales.index');
         // 5. Documentos
         Route::get('documentos', [ClienteEmpresaController::class, 'documentosIndex'])->name('documentos.index');
 

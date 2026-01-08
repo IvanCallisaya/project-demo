@@ -1,5 +1,5 @@
 <div class="container-fluid">
-    
+
     <form id="formClienteEmpresa"
         action="{{ isset($cliente) ? route('cliente_empresa.update',$cliente->id) : route('cliente_empresa.store') }}"
         method="POST"
@@ -23,14 +23,24 @@
                         class="form-control" required>
                     @error('nombre')<small class="text-danger">{{ $message }}</small>@enderror
                 </div>
-
+                <div class="form-group">
+                    <label>NIT</label>
+                    <input type="text" name="nit" value="{{ old('nit',$cliente->nit ?? '') }}"
+                        class="form-control">
+                </div>
                 <!-- Dirección -->
                 <div class="form-group">
                     <label>Dirección</label>
                     <input type="text" name="direccion" value="{{ old('direccion',$cliente->direccion ?? '') }}"
                         class="form-control">
                 </div>
-
+                <!-- Actividad Principal -->
+                <div class="form-group">
+                    <label>Actividad Principal</label>
+                    <input type="text" name="actividad_principal"
+                        value="{{ old('actividad_principal',$cliente->actividad_principal ?? '') }}"
+                        class="form-control">
+                </div>
                 <!-- Imagen -->
                 <div class="form-group">
                     <label>Imagen (se guarda ruta)</label>
@@ -58,6 +68,12 @@
 
             <div class="col-md-6">
 
+                <div class="form-group">
+                    <label>Id Padron</label>
+                    <input type="text" name="id_padron"
+                        value="{{ old('id_padron',$cliente->id_padron ?? '') }}"
+                        class="form-control">
+                </div>
 
 
                 <div class="form-group">

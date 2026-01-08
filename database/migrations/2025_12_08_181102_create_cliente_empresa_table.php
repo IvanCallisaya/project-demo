@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('nit');
             $table->string('direccion')->nullable();
+            $table->string('actividad_principal')->nullable();
             $table->string('nombre_contacto_principal')->nullable();
             $table->string('email_principal')->nullable();
             $table->string('telefono_principal')->nullable();

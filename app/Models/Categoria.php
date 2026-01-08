@@ -15,6 +15,7 @@ class Categoria extends Model
     protected $fillable = [
         'nombre',
         'codigo',
+        'empresa_id',
     ];
 
     // Relación UNO a MUCHOS: Una Clase tiene muchas SubClases

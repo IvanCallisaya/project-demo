@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ClienteEmpresa;
 use App\Models\Documento;
 use App\Models\LaboratorioProducto; // El modelo pivot
+use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,14 +17,14 @@ class DashboardController extends Controller
         // 1. Estadísticas de Clientes
         $totalClientes = ClienteEmpresa::count();
 
-        $productosPorEstado = LaboratorioProducto::select('estado', DB::raw('count(*) as total'))
-            ->groupBy('estado')
-            ->pluck('total', 'estado');
+        // $productosPorEstado = LaboratorioProducto::select('estado', DB::raw('count(*) as total'))
+        //     ->groupBy('estado')
+        //     ->pluck('total', 'estado');
 
-        // Mapeo de estados (asumiendo que usas las constantes que definimos antes)
-        $productosIniciado = $productosPorEstado[LaboratorioProducto::ESTADO_INICIADO] ?? 0;
-        $productosProceso = $productosPorEstado[LaboratorioProducto::ESTADO_EN_PROCESO] ?? 0;
-        $productosCompletado = $productosPorEstado[LaboratorioProducto::ESTADO_COMPLETADO] ?? 0;
+        // // Mapeo de estados (asumiendo que usas las constantes que definimos antes)
+        // $productosIniciado = $productosPorEstado[LaboratorioProducto::ESTADO_INICIADO] ?? 0;
+        // $productosProceso = $productosPorEstado[LaboratorioProducto::ESTADO_EN_PROCESO] ?? 0;
+        // $productosCompletado = $productosPorEstado[LaboratorioProducto::ESTADO_COMPLETADO] ?? 0;
 
         // 3. Eventos para el Calendario (Plazos de Documentos)
         $plazos = Documento::select('nombre', 'fecha_plazo_entrega', 'id')
@@ -40,13 +41,22 @@ class DashboardController extends Controller
                 'color' => '#dc3545', // Rojo para Plazo de Entrega
             ];
         });
-
+        $productos = Producto::whereIn('estado', [Producto::SOLICITADO, Producto::APROBADO, Producto::RECHAZADO])->get();
+        $eventos = $productos->map(function ($p) {
+            return [
+                'title' => $p->tramite . ' - ' . $p->estado_nombre,
+                'start' => $p->fecha_solicitud,
+                // La fecha respuesta es al día siguiente según tu requerimiento
+                'end'   => \Carbon\Carbon::parse($p->fecha_solicitud)->addDay()->format('Y-m-d'),
+                'backgroundColor' => $p->estado_color,
+                'borderColor'     => $p->estado_color,
+                'allDay' => true
+            ];
+        });
         return view('dashboard', [
             'totalClientes' => $totalClientes,
-            'productosIniciado' => $productosIniciado,
-            'productosProceso' => $productosProceso,
-            'productosCompletado' => $productosCompletado,
             'documentoEventos' => $documentoEventos,
+            'eventos' => $eventos,
         ]);
     }
 }

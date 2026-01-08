@@ -65,7 +65,7 @@
         <div class="col-lg-4 col-md-6">
             <div class="small-box bg-warning shadow">
                 <div class="inner">
-                    <h3>{{ $productosIniciado }}</h3>
+                    <h3>$productosIniciado</h3>
                     <p>Iniciado</p>
                 </div>
                 <div class="icon"><i class="fas fa-hourglass-start"></i></div>
@@ -78,7 +78,7 @@
         <div class="col-lg-4 col-md-6">
             <div class="small-box bg-primary shadow">
                 <div class="inner">
-                    <h3>{{ $productosProceso }}</h3>
+                    <h3>$productosProceso</h3>
                     <p>En Proceso</p>
                 </div>
                 <div class="icon"><i class="fas fa-cog"></i></div>
@@ -91,7 +91,7 @@
         <div class="col-lg-4 col-md-6">
             <div class="small-box bg-success shadow">
                 <div class="inner">
-                    <h3>{{ $productosCompletado }}</h3>
+                    <h3> $productosCompletado</h3>
                     <p>Completado</p>
                 </div>
                 <div class="icon"><i class="fas fa-check-double"></i></div>

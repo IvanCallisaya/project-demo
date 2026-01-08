@@ -46,7 +46,10 @@ class ClienteEmpresaController extends Controller
         // Crear empresa
         $empresa = ClienteEmpresa::create([
             'nombre' => $request->nombre,
+            'nit' => $request->nit,
             'direccion' => $request->direccion,
+            'actividad_principal' => $request->actividad_principal,
+            'id_padron' => $request->id_padron,
             'nombre_contacto_principal' => $request->nombre_contacto_principal,
             'email_principal' => $request->email_principal,
             'telefono_principal' => $request->telefono_principal,
@@ -95,7 +98,7 @@ class ClienteEmpresaController extends Controller
             $empresa->imagen = $rutaNueva;
         }
 
-        $empresa->update($request->only(['nombre', 'direccion', 'telefono', 'nombre_contacto_principal', 'email_principal', 'telefono_principal']));
+        $empresa->update($request->only(['nombre', 'direccion', 'telefono', 'nombre_contacto_principal', 'email_principal', 'telefono_principal', 'actividad_principal', 'nit', 'id_padron']));
 
         // Actualizar contactos
         $empresa->contactos()->delete();
@@ -140,6 +143,30 @@ class ClienteEmpresaController extends Controller
             'clienteEmpresa' => $clienteEmpresa,
             'currentView' => $currentView,
             'labs' => $laboratoriosPaginados,
+        ]);
+    }
+
+    public function sucursalesIndex(Request $request, ClienteEmpresa $clienteEmpresa)
+    {
+        $sucursalesQuery = $clienteEmpresa->sucursales();
+
+        if ($q = $request->input('q')) {
+            $sucursalesQuery->where('nombre', 'like', '%' . $q . '%');
+        }
+
+        $perPage = $request->input('per_page', 10);
+
+        $sucursalesPaginados = $sucursalesQuery
+            ->withCount('productos')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $currentView = 'sucursales';
+
+        return view('cliente_empresa.show', [
+            'clienteEmpresa' => $clienteEmpresa,
+            'currentView' => $currentView,
+            'sucursales' => $sucursalesPaginados,
         ]);
     }
     // app/Http/Controllers/ClienteEmpresaController.php

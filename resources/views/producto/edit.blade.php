@@ -17,7 +17,7 @@
                 @method('PUT')
 
                 {{-- Incluir el formulario reutilizable --}}
-                @include('producto.form', ['producto' => $producto, 'subcategorias' => $subcategorias, 'unidades' => $unidadMedida])
+                @include('producto.form', ['producto' => $producto,'subcategorias' => $subcategorias, 'categorias' => $categorias, 'laboratorios' => $laboratorios])
                 <div class="mt-4">
                     <button type="submit" class="btn btn-warning text-white">Actualizar</button>
                     <a href="{{ route('producto.index') }}" class="btn btn-secondary">Cancelar</a>
@@ -28,3 +28,7 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    @include('producto._scripts')
+@endpush

@@ -18,17 +18,17 @@
             <input type="text" name="nombre" class="form-control"
                 value="{{ old('nombre', $laboratorio->nombre ?? '') }}" required>
         </div>
-
         <div class="form-group">
-            <label>Responsable Técnico</label>
-            <input type="text" name="responsable" class="form-control"
-                value="{{ old('responsable', $laboratorio->responsable ?? '') }}">
-        </div>
-
-        <div class="form-group">
-            <label>Registro SENASAG</label>
-            <input type="text" name="registro_senasag" class="form-control"
-                value="{{ old('registro_senasag', $laboratorio->registro_senasag ?? '') }}">
+            <label for="pais">País</label>
+            <select name="pais" id="pais-select" class="form-control select2">
+                <option value="">Seleccione un país...</option>
+                @foreach($paises as $codigo => $nombre)
+                <option value="{{ $nombre }}"
+                    {{ (old('pais', $laboratorio->pais ?? '') == $nombre) ? 'selected' : '' }}>
+                    {{ $nombre }}
+                </option>
+                @endforeach
+            </select>
         </div>
 
     </div>
@@ -47,31 +47,9 @@
                 value="{{ old('email', $laboratorio->email ?? '') }}">
         </div>
 
-        <div class="form-group">
-            <label>Ciudad</label>
-            <input type="text" name="ciudad" class="form-control"
-                value="{{ old('ciudad', $laboratorio->ciudad ?? '') }}">
-        </div>
-
-        <div class="form-group">
-            <label>Dirección</label>
-            <input type="text" name="direccion" class="form-control"
-                value="{{ old('direccion', $laboratorio->direccion ?? '') }}">
-        </div>
 
     </div>
 
-</div>
-
-<div class="form-group">
-    <label>Categoría</label>
-    <input type="text" name="categoria" class="form-control"
-        value="{{ old('categoria', $laboratorio->categoria ?? '') }}">
-</div>
-
-<div class="form-group">
-    <label>Observaciones</label>
-    <textarea name="observaciones" class="form-control" rows="3">{{ old('observaciones', $laboratorio->observaciones ?? '') }}</textarea>
 </div>
 
 <button class="btn btn-primary">Guardar</button>

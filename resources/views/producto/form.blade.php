@@ -1,65 +1,112 @@
-{{--
-    Vista: productos/form.blade.php
-    Variables esperadas: $producto (objeto Producto o new Producto()), $subcategorias (Collection)
---}}
 @csrf
+<script>
+    window.subcategoriasDisponibles = @json($subcategorias->map(function($sub) {
+        return ['id' => $sub->id, 'nombre' => $sub->nombre, 'categoria_id' => $sub->categoria_id];
+    }));
+    window.subcategoriaSeleccionada = "{{ old('subcategoria_id', $producto->subcategoria_id ?? '') }}";
+</script>
 
 <div class="row">
-
-    {{-- Campo Subcategoría --}}
+    {{-- Pre-solicitud: Se desactiva en EDIT --}}
     <div class="col-md-6 mb-3">
-        <label for="subcategoria_id" class="form-label">Subcategoría</label>
-        <select name="subcategoria_id" id="subcategoria_id" class="form-control @error('subcategoria_id') is-invalid @enderror" required>
-            <option value="">Seleccione una subcategoría</option>
-            @foreach($subcategorias as $subcategoria)
-            <option value="{{ $subcategoria->id }}"
-                {{ old('subcategoria_id', $producto->subcategoria_id ?? '') == $subcategoria->id ? 'selected' : '' }}>
-                {{ $subcategoria->categoria->nombre .' | '. $subcategoria->nombre  }}
-            </option>
-            @endforeach
-        </select>
-        @error('subcategoria_id')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
+        <label class="form-label">Pre-solicitud de tramite</label>
+        @if($producto->exists)
+            <input type="text" class="form-control" value="{{ $producto->id_presolicitud }} - {{ $producto->tramite }}" readonly>
+            <input type="hidden" name="id_presolicitud" value="{{ $producto->id }}">
+        @else
+            <select name="id_presolicitud" id="id_presolicitud" class="form-control select2" required>
+                <option value="">Seleccione Pre-solicitud...</option>
+                @foreach($productos as $p)
+                    <option value="{{ $p->id }}" @selected(old('id_presolicitud') == $p->id)>
+                        {{ $p->id_presolicitud }}
+                    </option>
+                @endforeach
+            </select>
+        @endif
     </div>
 
+    {{-- Categoría Principal: Se marca la actual en EDIT --}}
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Categoría Principal</label>
+        @php 
+            $catIdActual = old('categoria_id', $producto->subcategoria->categoria_id ?? ''); 
+        @endphp
+        <select id="categoria_selector" class="form-control select2" {{ $producto->exists ? 'disabled' : '' }}>
+            <option value="">Seleccione Categoría...</option>
+            @foreach($categorias as $cat)
+                <option value="{{ $cat->id }}" @selected($catIdActual == $cat->id)>
+                    {{ $cat->nombre }}
+                </option>
+            @endforeach
+        </select>
+        {{-- Si está deshabilitado, mandamos el ID oculto para que el script de JS lo lea --}}
+        @if($producto->exists)
+            <input type="hidden" id="categoria_id_hidden" value="{{ $catIdActual }}">
+        @endif
+    </div>
+
+    {{-- Subcategoría: Se desactiva en EDIT --}}
+    <div class="col-md-6 mb-3">
+        <label for="subcategoria_id" class="form-label">Subcategoría *</label>
+        <select name="subcategoria_id" id="subcategoria_id" class="form-control select2" required {{ $producto->exists ? 'disabled' : '' }}>
+            <option value="">Seleccione subcategoría...</option>
+        </select>
+        @if($producto->exists)
+            <input type="hidden" name="subcategoria_id" value="{{ $producto->subcategoria_id }}">
+        @endif
+    </div>
     {{-- Campo Nombre --}}
     <div class="col-md-6 mb-3">
-        <label for="nombre" class="form-label">Nombre del Producto</label>
-        <input type="text" name="nombre" id="nombre"
-            class="form-control @error('nombre') is-invalid @enderror"
+        <label for="nombre" class="form-label">Nombre del Producto *</label>
+        <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror"
             value="{{ old('nombre', $producto->nombre ?? '') }}" required>
-        @error('nombre')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
     </div>
 
-    {{-- Campo Código --}}
+    {{-- Laboratorio Titular --}}
     <div class="col-md-6 mb-3">
-        <label for="codigo" class="form-label">Código</label>
-        <input type="text" name="codigo" id="codigo"
-            class="form-control @error('codigo') is-invalid @enderror"
-            value="{{ old('codigo', $producto->codigo ?? '') }}">
-        @error('codigo')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-
-    {{-- Campo Unidad de Medida --}}
-    <div class="col-md-6 mb-3">
-        <label for="unidad_medida_id" class="form-label">Unidad de medida</label>
-        <select name="unidad_medida_id" class="form-control">
-            @foreach ($unidades as $unidad)
-            <option value="{{ $unidad->id }}" @selected($producto->unidad_medida_id == $unidad->id)>
-                {{ $unidad->nombre }} ({{ $unidad->simbolo }})
+        <label>Laboratorio Titular</label>
+        <select name="laboratorio_titular_id" class="form-control select2">
+            <option value="">Seleccione Laboratorio...</option>
+            @foreach($laboratorios as $lab)
+            <option value="{{ $lab->id }}" @selected(old('laboratorio_titular_id', $producto->laboratorio_titular_id ?? '') == $lab->id)>
+                {{ $lab->nombre }}
             </option>
             @endforeach
         </select>
     </div>
 
+    {{-- Laboratorio Producción --}}
+    <div class="col-md-6 mb-3">
+        <label>Laboratorio Producción</label>
+        <select name="laboratorio_produccion_id" class="form-control select2">
+            <option value="">Seleccione Laboratorio...</option>
+            @foreach($laboratorios as $lab)
+            <option value="{{ $lab->id }}" @selected(old('laboratorio_produccion_id', $producto->laboratorio_produccion_id ?? '') == $lab->id)>
+                {{ $lab->nombre }}
+            </option>
+            @endforeach
+        </select>
+    </div>
 
-</div>
-<div class="form-group">
-    <label>Descripcion</label>
-    <textarea name="descripcion" class="form-control" rows="3">{{ old('descripcion', $producto->descripcion ?? '') }}</textarea>
+    {{-- Código Trámite --}}
+    <div class="col-md-4 mb-3">
+        <label>Código de Trámite</label>
+        <input type="text" name="codigo_tramite" class="form-control" value="{{ old('codigo_tramite', $producto->codigo_tramite ?? '') }}">
+    </div>
+
+    {{-- Código Producto --}}
+    <div class="col-md-4 mb-3">
+        <label>Código Producto (Interno)</label>
+        <input type="text" name="codigo" class="form-control" value="{{ old('codigo', $producto->codigo ?? '') }}">
+    </div>
+
+    {{-- Fecha Inicio --}}
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Fecha y Hora de Inicio *</label>
+            <input type="datetime-local" name="fecha_inicio" class="form-control"
+                value="{{ old('fecha_inicio', isset($producto->fecha_inicio) ? \Carbon\Carbon::parse($producto->fecha_inicio)->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}"
+                required>
+        </div>
+    </div>
 </div>

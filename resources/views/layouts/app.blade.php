@@ -24,9 +24,9 @@
         </div>
         
     </div>
+    @vite(['resources/js/app.js'])
     @stack('js')
     @stack('scripts')
-    @vite(['resources/js/app.js'])
 </body>
 
 </html>

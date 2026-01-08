@@ -19,9 +19,21 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ route('sucursal.index') }}" class="nav-link">
+                        <i class="fa-solid fa-building"></i>
+                        Sucursales
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('laboratorio.index') }}" class="nav-link">
                         <i class="fa-solid fa-flask-vial"></i>
                         Laboratorios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('presolicitud.index') }}" class="nav-link">
+                        <i class="fa-solid fa-file"></i>
+                        Pre-solicitudes de tramites
                     </a>
                 </li>
                 <li class="nav-item">

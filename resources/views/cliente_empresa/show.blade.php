@@ -73,6 +73,12 @@
                         <i class="fa-solid fa-clock-rotate-left me-1"></i> Documentos
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('cliente.sucursales.index', $clienteEmpresa->id) }}"
+                        class="nav-link @if($currentView === 'sucursales') active @endif">
+                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Sucursales
+                    </a>
+                </li>
 
             </ul>
         </div>
@@ -93,6 +99,9 @@
             @elseif($currentView === 'documentos')
             {{-- Registro de actividad --}}
             @include('cliente_empresa.partials.documentos', ['documentos' => $clienteEmpresa->id])
+            @elseif($currentView === 'sucursales')
+            {{-- Registro de actividad --}}
+            @include('cliente_empresa.partials.sucursales', ['sucursales' => $clienteEmpresa->sucursales])
             @else
             <div class="alert alert-info">Contenido no definido para esta vista.</div>
             @endif

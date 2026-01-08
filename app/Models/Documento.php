@@ -11,7 +11,7 @@ class Documento extends Model
     use MultiTenantScope;
     protected $table = 'documento';
     protected $fillable = [
-        'laboratorio_producto_id',
+        'producto_id',
         'nombre',
         'url',
         'fecha_plazo_entrega',

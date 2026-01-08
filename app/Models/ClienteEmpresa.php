@@ -19,6 +19,9 @@ class ClienteEmpresa extends Model
         'empresa_id',
         'imagen',
         'url_carpeta_drive',
+        'nit',
+        'actividad_principal',
+        'id_padron',
     ];
 
     public function contactos()
@@ -28,5 +31,9 @@ class ClienteEmpresa extends Model
     public function laboratorios()
     {
         return $this->hasMany(Laboratorio::class, 'cliente_empresa_id');
+    }
+        public function sucursales()
+    {
+        return $this->hasMany(Sucursal::class, 'cliente_empresa_id');
     }
 }

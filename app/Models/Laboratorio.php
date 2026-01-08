@@ -15,15 +15,9 @@ class Laboratorio extends Model
     protected $fillable = [
         'cliente_empresa_id',
         'nombre',
-        'responsable',
-        'registro_senasag',
-        'telefono',
+        'pais',
         'email',
-        'ciudad',
-        'direccion',
-        'categoria',
-        'estado',
-        'observaciones',
+        'telefono',
         'empresa_id',
     ];
 
@@ -31,11 +25,5 @@ class Laboratorio extends Model
     {
         return $this->belongsTo(ClienteEmpresa::class, 'cliente_empresa_id');
     }
-    public function productos()
-    {
-        return $this->belongsToMany(Producto::class, 'laboratorio_producto')
-            ->using(LaboratorioProducto::class) // <-- ¡ESTA ES LA LÍNEA QUE FALTA!
-            ->withPivot(['id', 'costo_analisis', 'fecha_recepcion', 'tiempo_entrega_dias', 'estado', 'laboratorio_id', 'producto_id', 'fecha_entrega'])
-            ->withTimestamps();
-    }
+
 }

@@ -29,11 +29,20 @@
                     <div class="col-md-4 border-end">
                         <h5 class="text-secondary"><i class="fas fa-file-alt me-1"></i> Información Legal</h5>
                         <dl class="row mb-0">
-                            <dt class="col-sm-5 fw-bold">Nombre Legal:</dt>
+                            <dt class="col-sm-5 fw-bold">Nombre:</dt>
                             <dd class="col-sm-7">{{ $clienteEmpresa->nombre }}</dd>
 
                             <dt class="col-sm-5 fw-bold">Dirección:</dt>
                             <dd class="col-sm-7">{{ $clienteEmpresa->direccion }}</dd>
+
+                            <dt class="col-sm-5 fw-bold">NIT:</dt>
+                            <dd class="col-sm-7">{{ $clienteEmpresa->nit }}</dd>
+
+                            <dt class="col-sm-5 fw-bold">Actividad Principal:</dt>
+                            <dd class="col-sm-7">{{ $clienteEmpresa->actividad_principal }}</dd>
+
+                            <dt class="col-sm-5 fw-bold">Id Padron:</dt>
+                            <dd class="col-sm-7">{{ $clienteEmpresa->id_padron }}</dd>
 
                             {{-- Puedes añadir más campos legales aquí si existen (ej: NIT) --}}
                         </dl>

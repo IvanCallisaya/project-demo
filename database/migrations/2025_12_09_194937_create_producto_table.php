@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('producto', function (Blueprint $table) {
             $table->id();
+            $table->integer('estado')->default(1);
             $table->string('id_presolicitud');
-            $table->date('fecha_solicitud');
+            $table->dateTime('fecha_solicitud')->nullable();
+            $table->foreignId('sucursal_id')->nullable()->constrained('sucursal');
+            $table->foreignId('cliente_empresa_id')->nullable()->constrained('cliente_empresa');
             $table->string('tramite');
             $table->foreignId('laboratorio_titular_id')->nullable()->constrained('laboratorio');
             $table->foreignId('laboratorio_produccion_id')->nullable()->constrained(table: 'laboratorio');
-            $table->date('fecha_inicio')->nullable();
+            $table->dateTime('fecha_inicio')->nullable();
             $table->string('codigo_tramite')->nullable();;
-            $table->foreignId('sucursal_id')->nullable()->constrained('sucursal');
-            $table->string('nombre');
+            $table->string('nombre')->nullable();
             $table->foreignId('subcategoria_id')->nullable()->constrained('subcategoria');
             $table->string('codigo')->nullable(); //solo tiene cuando se finaliza el tramite del producto
             $table->foreignId('empresa_id')->constrained('empresa');

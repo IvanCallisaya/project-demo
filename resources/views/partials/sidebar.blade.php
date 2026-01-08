@@ -5,7 +5,7 @@
 
     <div class="sidebar">
         <nav>
-            <ul class="nav nav-pills nav-sidebar flex-column">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
                     <a href="{{ route('dashboard') }}" class="nav-link">
                         <i class="nav-icon fas fa-home"></i>
@@ -47,6 +47,23 @@
                         <i class="fas fa-tags"></i>
                         Subcategorías
                     </a>
+                </li>
+                <li class="nav-item has-treeview {{ request()->is('reporte*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->is('reporte*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-chart-bar"></i>
+                        <p>
+                            Reportes
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('reporte.producto') }}" class="nav-link {{ request()->routeIs('reporte.producto.index') ? 'active' : '' }}">
+                                <i class="fas fa-file-medical nav-icon"></i>
+                                <p>Producto Veterinario</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 @role('admin')
                 <li class="nav-item">

@@ -133,7 +133,6 @@ class ClienteEmpresaController extends Controller
         $perPage = $request->input('per_page', 10);
 
         $laboratoriosPaginados = $laboratoriosQuery
-            ->withCount('productos')
             ->paginate($perPage)
             ->withQueryString();
 
@@ -174,72 +173,27 @@ class ClienteEmpresaController extends Controller
     public function documentosIndex(Request $request, ClienteEmpresa $clienteEmpresa)
     {
         $currentView = 'documentos';
-
-        // --- 1. Obtención y Carga Inicial de Documentos ---
-
-        // Cargar laboratorios y productos (necesitamos los IDs del Pivot)
-        $clienteEmpresa->load([
-            'laboratorios.productos' => function ($query) {
-                // Solo necesitamos el ID del pivot
-                $query->withPivot(['id']);
-            }
-        ]);
-
-        // Obtener IDs de todos los Pivots únicos (LaboratorioProducto)
-        $pivotIds = $clienteEmpresa->laboratorios
-            ->flatMap(function ($laboratorio) {
-                return $laboratorio->productos;
-            })
-            ->pluck('pivot.id')
-            ->unique()
-            ->filter(); // Eliminar nulos si los hubiera
-
-        // Obtener todos los documentos directamente usando los IDs de los Pivots.
-        // Esto es más eficiente que iterar colecciones grandes.
-        $allDocuments = \App\Models\Documento::whereIn('laboratorio_producto_id', $pivotIds)
-            // Carga ansiosa para mostrar Laboratorio en la tabla.
-            ->with(['laboratorioProducto.laboratorio'])
-            ->get();
-
-        // --- 2. Aplicar Búsqueda (Filtro) ---
-
         $searchQuery = $request->get('q');
+        $perPage = $request->get('per_page', 10);
+
+        // 1. Iniciamos la consulta desde el modelo Documento
+        // Filtramos los documentos cuyo producto pertenece al cliente actual
+        $query = \App\Models\Documento::whereHas('producto', function ($q) use ($clienteEmpresa) {
+            $q->where('cliente_empresa_id', $clienteEmpresa->id);
+        })->with(['producto.laboratorioTitular']); // Carga ansiosa para mostrar info en la tabla
+
+        // 2. Aplicar Filtro de búsqueda (Directamente en la Query de BD, mucho más rápido)
         if ($searchQuery) {
-            $searchQuery = mb_strtolower($searchQuery);
-            $allDocuments = $allDocuments->filter(function ($doc) use ($searchQuery) {
-                // Filtra por el nombre del documento, o cualquier otro campo relevante.
-                // Usamos mb_strtolower para asegurar la compatibilidad con tildes, etc.
-                return mb_stripos(mb_strtolower($doc->nombre), $searchQuery) !== false;
-            });
+            $query->where('nombre', 'like', '%' . $searchQuery . '%');
         }
 
-        // --- 3. Aplicar Paginación Manual (Colección) ---
+        // 3. Paginación automática de Eloquent (Ya no necesitas LengthAwarePaginator manual)
+        $docs = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        $perPage = $request->get('per_page', 10);
-        $page = LengthAwarePaginator::resolveCurrentPage(); // Obtiene el número de página de la URL ('page')
-
-        // 3.1 Crear la colección para la página actual
-        $currentPageDocuments = $allDocuments->slice(($page - 1) * $perPage, $perPage)->values();
-
-        // 3.2 Crear el Paginador
-        $docs = new LengthAwarePaginator(
-            $currentPageDocuments,
-            $allDocuments->count(),
-            $perPage,
-            $page,
-            [
-                'path' => route('cliente.documentos.index', $clienteEmpresa->id) // Ruta base para los enlaces
-            ]
-        );
-
-        // Asegurar que los parámetros de búsqueda/tamaño de página se mantengan en los enlaces de paginación
+        // Mantener parámetros de búsqueda en los links de paginación
         $docs->appends($request->except('page'));
 
-
-        // --- 4. Determinar Vista a Devolver ---
-
-        // Si la solicitud es AJAX (lo que indica que viene de tu función loadDocumentos),
-        // devolvemos solo el Blade parcial con la tabla.
+        // 4. Determinar Vista a Devolver
         if ($request->ajax()) {
             return view('cliente_empresa.documentos_content', [
                 'clienteEmpresa' => $clienteEmpresa,
@@ -248,11 +202,10 @@ class ClienteEmpresaController extends Controller
             ]);
         }
 
-        // Si no es AJAX (primera carga), devolvemos la vista principal.
         return view('cliente_empresa.show', [
             'clienteEmpresa' => $clienteEmpresa,
             'currentView' => $currentView,
-            'allDocuments' => $docs, // Usamos la colección paginada para la vista inicial
+            'allDocuments' => $docs,
         ]);
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\LaboratorioController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ProductoReporteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubCategoriaController;
 use App\Http\Controllers\SucursalController;
@@ -43,7 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('producto', ProductoController::class);
     Route::resource('subcategoria', SubCategoriaController::class);
     Route::resource('sucursal', SucursalController::class);
-    
+    Route::get('reporte/producto', [ProductoReporteController::class, 'index'])->name('reporte.producto');
     Route::prefix('configuracion')->group(function () {
         Route::get('/documento', [DocumentoController::class, 'index'])->name('configuracion.documento');
     });

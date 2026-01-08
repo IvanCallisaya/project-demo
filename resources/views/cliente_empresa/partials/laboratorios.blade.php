@@ -38,7 +38,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Nombre</th>
-                        <th>Productos</th>
+                        <th>País</th>
                         <th>Teléfono</th>
                         <th>Acciones</th>
                     </tr>
@@ -49,10 +49,10 @@
                     <tr>
                         <td>{{ $lab->nombre }}</td>
                         {{-- Usamos la propiedad generada por withCount --}}
-                        <td><span class="badge bg-primary">{{ $lab->productos_count }}</span></td>
+                        <td>{{ $lab->pais }}</td>
                         <td>{{ $lab->telefono }}</td>
                         <td style="white-space:nowrap">
-                            <a href="{{ route('laboratorio.show',$lab->id) }}" class="btn btn-sm btn-info"><i class="fa-regular fa-eye" style="color:white"></i></a>
+                            <!-- <a href="{{ route('laboratorio.show',$lab->id) }}" class="btn btn-sm btn-info"><i class="fa-regular fa-eye" style="color:white"></i></a> -->
                             <a href="{{ route('laboratorio.edit',$lab->id) }}" class="btn btn-sm btn-warning"><i class="fa-regular fa-pen-to-square" style="color: white;"></i></a>
 
                             {{-- ... Formulario de eliminar ... --}}

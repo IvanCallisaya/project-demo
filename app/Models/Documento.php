@@ -19,8 +19,8 @@ class Documento extends Model
         'empresa_id',
     ];
 
-    public function laboratorioProducto()
+    public function producto()
     {
-        return $this->belongsTo(LaboratorioProducto::class, 'laboratorio_producto_id');
+        return $this->belongsTo(Producto::class, 'producto_id');
     }
 }

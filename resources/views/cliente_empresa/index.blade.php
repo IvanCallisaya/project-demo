@@ -44,6 +44,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Imagen</th>
+                        <th>Padron</th>
                         <th>Nombre</th>
                         <th>Teléfono</th>
                         <th>Contactos</th>
@@ -64,7 +65,7 @@
                             <small class="text-muted">Sin imagen</small>
                             @endif
                         </td>
-
+                        <td>{{ $e->id_padron }}</td>
                         <td>{{ $e->nombre }}</td>
 
                         <td>{{ $e->telefono_principal }}</td>

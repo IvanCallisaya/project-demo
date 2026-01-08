@@ -38,7 +38,26 @@ class Producto extends Model
     const EN_CURSO   = 6;
     const FINALIZADO = 7;
 
+    public static function getNombreEstado($estadoId)
+    {
+        return match ((int)$estadoId) {
+            self::SOLICITADO => 'Solicitado',
+            self::APROBADO   => 'Aprobado',
+            self::RECHAZADO  => 'Rechazado',
+            self::OBSERVADO  => 'Observado',
+            self::PENDIENTE  => 'Pendiente',
+            self::EN_CURSO   => 'En Curso',
+            self::FINALIZADO => 'Finalizado',
+            default          => 'Desconocido',
+        };
+    }
+
+    // 2. Mantén el Accessor para uso normal (opcional, pero recomendado)
     public function getEstadoNombreAttribute()
+    {
+        return self::getNombreEstado($this->estado);
+    }
+    public function getEstadoNombreIdAttribute()
     {
         return match ($this->estado) {
             self::SOLICITADO => 'Solicitado',
@@ -67,18 +86,18 @@ class Producto extends Model
     }
 
     public static function opcionesTramite()
-{
-    return [
-        'Modificación de registro sanitario, con inspección (IA/SA)',
-        'Modificación de registro sanitario (IA/SA)',
-        'Registro sanitario de empresas veterinarias Importadoras Comercializadoras.',
-        'Registro zoosanitario de productos de uso veterinario (Biológico)',
-        'Registro zoosanitario de productos de uso veterinario (Alimento Balanceado)',
-        'Registro zoosanitario de productos de uso veterinario (Farmacológico)',
-        'Registro zoosanitario de productos de uso veterinario (Insumos para la producción pecuaria)',
-        'Registro zoosanitario de productos de uso veterinario (homeopáticos y otros)',
-    ];
-}
+    {
+        return [
+            'Modificación de registro sanitario, con inspección (IA/SA)',
+            'Modificación de registro sanitario (IA/SA)',
+            'Registro sanitario de empresas veterinarias Importadoras Comercializadoras.',
+            'Registro zoosanitario de productos de uso veterinario (Biológico)',
+            'Registro zoosanitario de productos de uso veterinario (Alimento Balanceado)',
+            'Registro zoosanitario de productos de uso veterinario (Farmacológico)',
+            'Registro zoosanitario de productos de uso veterinario (Insumos para la producción pecuaria)',
+            'Registro zoosanitario de productos de uso veterinario (homeopáticos y otros)',
+        ];
+    }
 
     // Relaciones
     public function sucursal()
@@ -96,5 +115,27 @@ class Producto extends Model
     public function clienteEmpresa()
     {
         return $this->belongsTo(ClienteEmpresa::class, 'cliente_empresa_id');
+    }
+    // Relación con Categoría (a través de SubCategoría)
+    public function categoria()
+    {
+        return $this->hasOneThrough(Categoria::class, SubCategoria::class, 'id', 'id', 'subcategoria_id', 'categoria_id');
+    }
+
+    // Laboratorio Titular
+    public function laboratorioTitular()
+    {
+        return $this->belongsTo(Laboratorio::class, 'laboratorio_titular_id');
+    }
+
+    // Laboratorio Producción
+    public function laboratorioProduccion()
+    {
+        return $this->belongsTo(Laboratorio::class, 'laboratorio_produccion_id');
+    }
+    // En app/Models/Producto.php
+    public function bitacoras()
+    {
+        return $this->hasMany(ProductoBitacora::class, 'producto_id')->orderBy('id', 'desc');
     }
 }

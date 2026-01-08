@@ -6,6 +6,7 @@ use App\Models\Categoria;
 use App\Models\ClienteEmpresa;
 use App\Models\Laboratorio;
 use App\Models\Producto;
+use App\Models\ProductoBitacora;
 use App\Models\SubCategoria;
 use App\Models\Sucursal;
 use App\Models\UnidadMedida;
@@ -22,7 +23,7 @@ class ProductoController extends Controller
         $perPage = request()->input('per_page', 10);
         // Solo mostramos los que están en estados de pre-solicitud (Solicitado, Aprobado, Rechazado)
         $productos = Producto::whereIn('estado', [Producto::SOLICITADO, Producto::APROBADO, Producto::RECHAZADO])
-            ->orderBy('id', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
         return view('presolicitud.index', compact('productos', 'perPage'));
@@ -32,7 +33,6 @@ class ProductoController extends Controller
     {
 
         $producto = Producto::findOrFail($id);
-        Log::info("Cambiando estado del producto ID: {}" . $request->nuevo_estado);
         $request->validate([
             'nuevo_estado' => 'required|integer|in:' . implode(',', [
                 Producto::SOLICITADO,
@@ -46,7 +46,17 @@ class ProductoController extends Controller
         ]);
 
         $producto->estado = $request->nuevo_estado;
+        $estadoAntiguo = $producto->getOriginal('estado');
         $producto->save();
+
+        ProductoBitacora::create([
+            'producto_id' => $producto->id,
+            'user_id' => auth()->id(),
+            'evento' => 'Cambio de Estado',
+            'estado_anterior' => Producto::getNombreEstado($estadoAntiguo),
+            'estado_nuevo' => Producto::getNombreEstado($request->nuevo_estado),
+            'observacion' => $request->observacion ?? 'Cambio de estado manual.'
+        ]);
 
         return back()->with('success', 'Estado actualizado a: ' . $producto->estado_nombre);
     }
@@ -74,7 +84,14 @@ class ProductoController extends Controller
         $validated['fecha_solicitud'] = \Carbon\Carbon::parse($request->fecha_solicitud)->format('Y-m-d H:i:s');
         $validated['estado'] = Producto::SOLICITADO;
 
-        Producto::create($validated);
+        $producto = Producto::create($validated);
+        ProductoBitacora::create([
+            'producto_id' => $producto->id,
+            'user_id' => auth()->id(),
+            'evento' => 'Registro de Pre-solicitud',
+            'estado_nuevo' => $producto->getEstadoNombreIdAttribute(Producto::SOLICITADO),
+            'observacion' => 'Se registró la pre-solicitud inicial.'
+        ]);
 
         return redirect()->route('presolicitud.index')
             ->with('success', 'Pre-solicitud registrada con éxito.');
@@ -121,17 +138,31 @@ class ProductoController extends Controller
             'laboratorio_titular_id'    => 'nullable|exists:laboratorio,id',
             'laboratorio_produccion_id' => 'nullable|exists:laboratorio,id',
             'codigo_tramite'            => 'nullable|string|max:100',
+            'fecha_inicio'              => 'required|date',
         ]);
 
         // 2. Buscar la pre-solicitud existente
         $producto = Producto::findOrFail($r->id_presolicitud);
 
+        // CAPTURA CRÍTICA: Guardamos el nombre del estado ANTES de actualizar
+        $nombreEstadoAnterior = $producto->estado_nombre;
+
         // 3. Preparar datos adicionales
         $data['fecha_inicio'] = \Carbon\Carbon::parse($r->fecha_inicio)->format('Y-m-d H:i:s');
-        $data['estado'] = Producto::EN_CURSO; // Cambiamos el estado aquí
+        $data['estado'] = Producto::EN_CURSO;
 
-        // 4. Actualizar en lugar de Create
+        // 4. Actualizar
         $producto->update($data);
+
+        // 5. Registrar Bitácora usando los nombres legibles
+        ProductoBitacora::create([
+            'producto_id'     => $producto->id,
+            'user_id'         => auth()->id(),
+            'evento'          => 'Inicio de Trámite',
+            'estado_anterior' => $nombreEstadoAnterior, // Ejemplo: "Aprobado"
+            'estado_nuevo'    => Producto::getNombreEstado(Producto::EN_CURSO), // Ejemplo: "En Curso"
+            'observacion'     => 'Se completaron los datos del producto y se inició el trámite.'
+        ]);
 
         return redirect()->route('producto.index')->with('success', 'Trámite iniciado y producto actualizado correctamente.');
     }
@@ -142,6 +173,9 @@ class ProductoController extends Controller
         $categorias = Categoria::all(); // Asegúrate de importar el modelo
         $subcategorias = SubCategoria::all();
         $laboratorios = Laboratorio::all();
+        $bitacoras = $producto->load('bitacoras');
+        Log::info($producto->bitacoras);
+        
         return view('producto.edit', compact('producto', 'productos', 'categorias', 'subcategorias', 'laboratorios'));
     }
 
@@ -159,6 +193,13 @@ class ProductoController extends Controller
             'laboratorio_titular_id'    => 'nullable|exists:laboratorio,id',
             'laboratorio_produccion_id' => 'nullable|exists:laboratorio,id',
             'codigo_tramite'            => 'nullable|string|max:100',
+        ]);
+        ProductoBitacora::create([
+            'producto_id' => $producto->id,
+            'user_id' => auth()->id(),
+            'evento' => 'Producto Actualizado',
+            'estado_nuevo' => $producto->estado,
+            'observacion' => 'Los datos del producto fueron actualizados.'
         ]);
         Log::info("Actualizando producto ID: {}" . $producto->id);
         $producto->update($data);

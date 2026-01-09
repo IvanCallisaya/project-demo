@@ -1,3 +1,17 @@
+@csrf
+<script>
+    // Pasamos todas las sucursales con su respectivo cliente_empresa_id
+    window.sucursalesDisponibles = @json($sucursales->map(function($suc) {
+        return [
+            'id' => $suc->id, 
+            'nombre' => $suc->nombre, 
+            'cliente_empresa_id' => $suc->cliente_empresa_id
+        ];
+    }));
+    
+    // Capturamos la selección previa (Edición o Old Input)
+    window.sucursalSeleccionada = "{{ old('sucursal_id', $producto->sucursal_id ?? '') }}";
+</script>
 <div class="row">
     <div class="col-md-4">
         <div class="form-group">
@@ -32,29 +46,25 @@
     </div>
     <div class="col-md-6">
         <div class="form-group">
-            <label>Sucursal</label>
-            <select name="sucursal_id" class="form-control select2">
-                <option value="">Seleccione una Sucursal...</option>
-                @foreach($sucursales as $sucursal)
-                <option value="{{ $sucursal->id }}"
-                    {{ (old('sucursal_id', $producto->sucursal_id ?? '') == $sucursal->id) ? 'selected' : '' }}>
-                    ({{ $sucursal->clienteEmpresa->nombre ?? 'Sin asignar' }}) - {{ $sucursal->nombre }}
+            <label>Encargado</label>
+            {{-- Agregamos id="encargado_selector" --}}
+            <select name="cliente_empresa_id" id="encargado_selector" class="form-control select2">
+                <option value="">Seleccione un Encargado...</option>
+                @foreach($clientes as $cliente)
+                <option value="{{ $cliente->id }}" @selected(old('cliente_empresa_id', $producto->cliente_empresa_id ?? '') == $cliente->id)>
+                    {{ $cliente->nombre }}
                 </option>
                 @endforeach
             </select>
         </div>
     </div>
+
     <div class="col-md-6">
         <div class="form-group">
-            <label>Encargado</label>
-            <select name="cliente_empresa_id" class="form-control select2">
-                <option value="">Seleccione un Encargado...</option>
-                @foreach($clientes as $cliente)
-                <option value="{{ $cliente->id }}"
-                    {{ (old('cliente_empresa_id', $producto->cliente_empresa_id ?? '') == $cliente->id) ? 'selected' : '' }}>
-                    {{ $cliente->nombre }}
-                </option>
-                @endforeach
+            <label>Sucursal</label>
+            {{-- Agregamos id="sucursal_id" --}}
+            <select name="sucursal_id" id="sucursal_id" class="form-control select2">
+                <option value="">Seleccione una Sucursal...</option>
             </select>
         </div>
     </div>

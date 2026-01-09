@@ -36,4 +36,8 @@ class ClienteEmpresa extends Model
     {
         return $this->hasMany(Sucursal::class, 'cliente_empresa_id');
     }
+    public function productos()
+    {
+        return $this->hasMany(Producto::class, 'cliente_empresa_id');
+    }
 }

@@ -24,4 +24,8 @@
         </form>
     </div>
 </div>
+
 @endsection
+@push('scripts')
+    @include('producto._scripts')
+@endpush

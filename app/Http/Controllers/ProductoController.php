@@ -99,24 +99,43 @@ class ProductoController extends Controller
 
     public function index(Request $r)
     {
-        // ... (El método index se mantiene igual)
         $perPage = (int) $r->query('per_page', 10);
         $q = $r->query('q');
-        $productos = Producto::whereIn('estado', [Producto::OBSERVADO, Producto::PENDIENTE, Producto::EN_CURSO, Producto::FINALIZADO]);
-        $query = $productos->newQuery();
+        $estado = $r->query('estado'); // Nuevo filtro
 
-        if ($q) {
-            $query->where('nombre', 'like', "%{$q}%")
-                ->orWhere('codigo', 'like', "%{$q}%");
+        // 1. Iniciamos la consulta con los estados permitidos base
+        $query = Producto::whereIn('estado', [
+            Producto::OBSERVADO,
+            Producto::PENDIENTE,
+            Producto::EN_CURSO,
+            Producto::FINALIZADO
+        ]);
+
+        // 2. Filtro por Estado específico (si el usuario selecciona uno)
+        if ($estado) {
+            $query->where('estado', $estado);
         }
 
-        $productos = $query->orderBy('nombre')->paginate($perPage)->withQueryString();
-        $productos->load('subcategoria');
-        $productos->load('clienteEmpresa');
-        Log::info($productos);
+        // 3. Búsqueda por Nombre, Código o Encargado (ClienteEmpresa)
+        if ($q) {
+            $query->where(function ($subQuery) use ($q) {
+                $subQuery->where('nombre', 'like', "%{$q}%")
+                    ->orWhere('codigo', 'like', "%{$q}%")
+                    // Buscar en la relación clienteEmpresa
+                    ->orWhereHas('clienteEmpresa', function ($relacion) use ($q) {
+                        $relacion->where('nombre', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        $productos = $query->orderBy('nombre')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $productos->load(['subcategoria', 'clienteEmpresa']);
+
         return view('producto.index', compact('productos'));
     }
-
     public function create()
     {
         $productos = Producto::whereIn('estado', [Producto::APROBADO])->get();
@@ -131,7 +150,6 @@ class ProductoController extends Controller
     {
         // 1. Validar primero
         $data = $r->validate([
-            'id_presolicitud'           => 'required|exists:producto,id',
             'codigo'                    => 'nullable|string|max:50|unique:producto,codigo,' . $r->id_presolicitud,
             'nombre'                    => 'required|string|max:191',
             'subcategoria_id'           => 'required|exists:subcategoria,id',
@@ -174,8 +192,8 @@ class ProductoController extends Controller
         $subcategorias = SubCategoria::all();
         $laboratorios = Laboratorio::all();
         $bitacoras = $producto->load('bitacoras');
-        Log::info($producto->bitacoras);
-        
+        Log::info($producto);
+
         return view('producto.edit', compact('producto', 'productos', 'categorias', 'subcategorias', 'laboratorios'));
     }
 

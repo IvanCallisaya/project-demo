@@ -10,10 +10,7 @@
     <a href="javascript:history.back()"
         class="btn btn-secondary mb-3 shadow-sm"
         style="border-radius: 8px;">
-
-        {{-- Icono de flecha hacia la izquierda --}}
         <i class="fas fa-arrow-left me-2"></i>
-
         Volver Atrás
     </a>
     <div class="card">
@@ -21,25 +18,62 @@
         {{-- BLOQUE 1: ENCABEZADO Y DATOS ESENCIALES (El mismo diseño ampliado) --}}
         {{-- ... (Contenido del card-header superior) ... --}}
 
-        <div class="card-header border-bottom-0">
-            {{-- ... Contenido del encabezado (nombre, teléfono, edición) ... --}}
-            {{-- (Se omite aquí por espacio, pero es el mismo que definimos antes) --}}
+        <div class="card-header border-bottom-0 bg-white p-4">
+            <div class="d-flex flex-column">
 
-            <div class="row align-items-center">
-                {{-- Contenido de info y botones de edición --}}
-                <div class="col-12 col-md-9">
-                    <h1 class="card-title mb-1" style="font-size: 2.25rem;">{{ $clienteEmpresa->nombre }}</h1>
-                    <div class="d-flex flex-wrap gap-3 text-muted small">
-                        <div><i class="fa-solid fa-location-dot me-1"></i> {{ $clienteEmpresa->direccion }}</div>
-                        <div><i class="fa-solid fa-phone me-1"></i> {{ $clienteEmpresa->telefono_principal }}</div>
-                        <div><i class="fa-solid fa-user me-1"></i> <strong>Contacto Ppal:</strong> {{ $clienteEmpresa->nombre_contacto_principal }}</div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-3 text-md-end mt-3 mt-md-0">
-                    <a href="{{ route('cliente_empresa.edit',$clienteEmpresa->id) }}" class="btn btn-warning btn-lg w-100 w-md-auto">
-                        <i class="fa-regular fa-pen-to-square me-1"></i> Editar Cliente
+                {{-- Fila Superior: Nombre y Botón --}}
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+                    <h1 class="display-5 fw-bold mb-3 mb-md-0" style="color: #333;">
+                        {{ $clienteEmpresa->nombre }}
+                    </h1>
+
+                    <a href="{{ route('cliente_empresa.edit', $clienteEmpresa->id) }}"
+                        class="btn btn-warning btn-lg shadow-sm px-4">
+                        <i class="fa-regular fa-pen-to-square me-2"></i> Editar Cliente
                     </a>
                 </div>
+
+                <hr class="my-3 opacity-50">
+
+                {{-- Fila Inferior: Datos de Contacto en fila --}}
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded-circle p-2 me-3">
+                                <i class="fa-solid fa-location-dot text-primary"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Dirección</small>
+                                <span class="fw-600">{{ $clienteEmpresa->direccion }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded-circle p-2 me-3">
+                                <i class="fa-solid fa-phone text-primary"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Teléfono</small>
+                                <span class="fw-600">{{ $clienteEmpresa->telefono_principal }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded-circle p-2 me-3">
+                                <i class="fa-solid fa-user-check text-primary"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Contacto Principal</small>
+                                <span class="fw-600">{{ $clienteEmpresa->nombre_contacto_principal }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -79,6 +113,13 @@
                         <i class="fa-solid fa-clock-rotate-left me-1"></i> Sucursales
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('cliente.productos.index', $clienteEmpresa->id) }}"
+                        class="nav-link @if($currentView === 'productos') active @endif">
+                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Productos
+                    </a>
+                </li>
+
 
             </ul>
         </div>
@@ -102,6 +143,9 @@
             @elseif($currentView === 'sucursales')
             {{-- Registro de actividad --}}
             @include('cliente_empresa.partials.sucursales', ['sucursales' => $clienteEmpresa->sucursales])
+            @elseif($currentView === 'productos')
+            {{-- Listado de Productos asociados al cliente --}}
+            @include('cliente_empresa.partials.productos', ['productos' => $clienteEmpresa->productos])
             @else
             <div class="alert alert-info">Contenido no definido para esta vista.</div>
             @endif
@@ -114,84 +158,49 @@
 @push('js')
 
 <script>
-    function loadLaboratorios(url) {
-        $.ajax({
-            url: url,
-            type: 'GET',
-            success: function(response) {
-                // 1. Encontrar el HTML del contenido de la tabla en la respuesta
-                var newContent = $(response).find('#laboratorios-tab-content').html();
+    $(document).ready(function() {
 
-                // 2. Reemplazar solo el contenido de la pestaña
-                $('#laboratorios-tab-content').html(newContent);
+        function loadTabContent(url, containerId) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                beforeSend: function() {
+                    $(containerId).css('opacity', '0.5');
+                },
+                success: function(response) {
+                    success: function(response) {
+                        $(containerId).html(response).css('opacity', '1');
+                        history.pushState(null, '', url);
+                    }
+                },
+                error: function() {
+                    $(containerId).css('opacity', '1');
+                    alert('Error al procesar la solicitud.');
+                }
+            });
+        }
 
-                // 3. (Opcional) Actualizar la URL en la barra de direcciones sin recargar
-                history.pushState(null, null, url);
-            },
-            error: function(xhr) {
-                alert('Error al cargar la lista de laboratorios.');
-                console.error(xhr);
-            }
+        // Escuchar TODOS los formularios de búsqueda (productos, sucursales, documentos, laboratorios)
+        $(document).on('submit', 'form[id$="-search-form"]', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var containerId = '#' + form.closest('[id$="-tab-content"]').attr('id');
+            var url = form.attr('action') + '?' + form.serialize();
+            loadTabContent(url, containerId);
         });
-    }
 
-    // Listener para enlaces de paginación
-    $(document).on('click', '#laboratorios-tab-content .pagination a', function(e) {
-        e.preventDefault();
-        loadLaboratorios($(this).attr('href'));
-    });
-
-    // Listener para el formulario de búsqueda y per_page
-    $(document).on('submit', '#laboratorio-search-form', function(e) {
-        e.preventDefault();
-        var url = $(this).attr('action') + '?' + $(this).serialize();
-        loadLaboratorios(url);
-    });
-
-
-    $(document).on('change', '#laboratorio-search-form select[name="per_page"]', function() {
-        $(this).closest('form').submit();
-    });
-
-    function loadDocumentos(url) {
-        $.ajax({
-            url: url,
-            type: 'GET',
-            success: function(response) {
-                // 1. Encontrar el HTML del contenido de la tabla en la respuesta
-                // NOTA: Debe coincidir con el ID del contenedor en el Blade parcial
-                var newContent = $(response).find('#documentos-tab-content').html();
-
-                // 2. Reemplazar solo el contenido de la pestaña
-                $('#documentos-tab-content').html(newContent);
-
-                // 3. (Opcional) Actualizar la URL en la barra de direcciones sin recargar
-                history.pushState(null, null, url);
-            },
-            error: function(xhr) {
-                alert('Error al cargar la lista de documentos.');
-                console.error(xhr);
-            }
+        // Escuchar cambios en selects de paginación o estado
+        $(document).on('change', 'form[id$="-search-form"] select', function() {
+            $(this).closest('form').submit();
         });
-    }
 
-    // Listener para enlaces de paginación (dentro del contenedor de documentos)
-    $(document).on('click', '#documentos-tab-content .pagination a', function(e) {
-        e.preventDefault();
-        loadDocumentos($(this).attr('href'));
-    });
-
-    // Listener para el formulario de búsqueda de documentos
-    $(document).on('submit', '#documentos-search-form', function(e) {
-        e.preventDefault();
-        var url = $(this).attr('action') + '?' + $(this).serialize();
-        loadDocumentos(url);
-    });
-
-
-    // Listener para el cambio de "per_page" en el formulario de documentos
-    $(document).on('change', '#documentos-search-form select[name="per_page"]', function() {
-        $(this).closest('form').submit();
+        // Escuchar clicks en paginación
+        $(document).on('click', '.pagination a', function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            var containerId = '#' + $(this).closest('[id$="-tab-content"]').attr('id');
+            loadTabContent(url, containerId);
+        });
     });
 </script>
 @endpush

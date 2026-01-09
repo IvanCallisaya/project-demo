@@ -25,13 +25,12 @@
         @endif
     </div>
 
-    {{-- Categoría Principal: Se marca la actual en EDIT --}}
     <div class="col-md-6 mb-3">
         <label class="form-label">Categoría Principal</label>
         @php 
             $catIdActual = old('categoria_id', $producto->subcategoria->categoria_id ?? ''); 
         @endphp
-        <select id="categoria_selector" class="form-control select2" {{ $producto->exists ? 'disabled' : '' }}>
+        <select id="categoria_selector" name="categoria_id" class="form-control select2">
             <option value="">Seleccione Categoría...</option>
             @foreach($categorias as $cat)
                 <option value="{{ $cat->id }}" @selected($catIdActual == $cat->id)>
@@ -39,21 +38,15 @@
                 </option>
             @endforeach
         </select>
-        {{-- Si está deshabilitado, mandamos el ID oculto para que el script de JS lo lea --}}
-        @if($producto->exists)
-            <input type="hidden" id="categoria_id_hidden" value="{{ $catIdActual }}">
-        @endif
     </div>
 
-    {{-- Subcategoría: Se desactiva en EDIT --}}
+    {{-- Subcategoría --}}
     <div class="col-md-6 mb-3">
         <label for="subcategoria_id" class="form-label">Subcategoría *</label>
-        <select name="subcategoria_id" id="subcategoria_id" class="form-control select2" required {{ $producto->exists ? 'disabled' : '' }}>
+        <select name="subcategoria_id" id="subcategoria_id" class="form-control select2" required>
             <option value="">Seleccione subcategoría...</option>
+            {{-- Se llena vía JS --}}
         </select>
-        @if($producto->exists)
-            <input type="hidden" name="subcategoria_id" value="{{ $producto->subcategoria_id }}">
-        @endif
     </div>
     {{-- Campo Nombre --}}
     <div class="col-md-6 mb-3">

@@ -1,68 +1,73 @@
 <script>
-/**
- * Usamos window.addEventListener('load') para garantizar que Vite 
- * haya cargado jQuery y Select2 antes de ejecutar la lógica.
- */
-window.addEventListener('load', function() {
-    
-    // Verificación de existencia de jQuery
-    if (typeof jQuery === 'undefined') {
-        console.error('jQuery no está disponible. Verifique la carga de scripts en app.blade.php');
-        return;
-    }
+    /**
+     * Usamos window.addEventListener('load') para garantizar que Vite 
+     * haya cargado jQuery y Select2 antes de ejecutar la lógica.
+     */
+    window.addEventListener('load', function() {
+        if (typeof jQuery === 'undefined') {
+            console.error('jQuery no está disponible.');
+            return;
+        }
 
-    $(document).ready(function() {
-        const $catSelect = $('#categoria_selector');
-        const $subSelect = $('#subcategoria_id');
+        $(document).ready(function() {
+            // Inicialización General de Select2
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                width: '100%',
+                allowClear: true
+            });
 
-        /**
-         * Función: actualizarSubcategorias
-         * @param {number|string} categoriaId - ID de la categoría seleccionada
-         * @param {number|string} seleccionadaId - ID de la subcategoría que debe marcarse como elegida
-         */
-        function actualizarSubcategorias(categoriaId, seleccionadaId = null) {
-            // 1. Limpiar el select de subcategorías (dejando solo el placeholder)
-            $subSelect.empty().append('<option value="">Seleccione subcategoría...</option>');
+            // --- LÓGICA 1: CATEGORÍAS Y SUBCATEGORÍAS ---
+            const $catSelect = $('#categoria_selector');
+            const $subSelect = $('#subcategoria_id');
 
-            if (categoriaId) {
-                // 2. Filtrar el array global de subcategorías (pasado desde PHP a window.subcategoriasDisponibles)
-                const filtradas = window.subcategoriasDisponibles.filter(function(sub) {
-                    return sub.categoria_id == categoriaId;
-                });
-
-                // 3. Construir e insertar las nuevas opciones
-                filtradas.forEach(function(sub) {
-                    const isSelected = (seleccionadaId && sub.id == seleccionadaId) ? 'selected' : '';
-                    const nuevaOpcion = `<option value="${sub.id}" ${isSelected}>${sub.nombre}</option>`;
-                    $subSelect.append(nuevaOpcion);
-                });
+            function actualizarSubcategorias(categoriaId, seleccionadaId = null) {
+                $subSelect.empty().append('<option value="">Seleccione subcategoría...</option>');
+                if (categoriaId) {
+                    const filtradas = window.subcategoriasDisponibles.filter(sub => sub.categoria_id == categoriaId);
+                    filtradas.forEach(sub => {
+                        const isSelected = (seleccionadaId && sub.id == seleccionadaId) ? 'selected' : '';
+                        $subSelect.append(`<option value="${sub.id}" ${isSelected}>${sub.nombre}</option>`);
+                    });
+                }
+                $subSelect.trigger('change.select2');
             }
 
-            // 4. Refrescar Select2 para que reconozca los nuevos elementos
-            $subSelect.trigger('change.select2');
-        }
+            $catSelect.on('change', function() {
+                actualizarSubcategorias($(this).val());
+            });
 
-        // Inicialización de componentes Select2 con tema Bootstrap 4
-        $('.select2').select2({
-            theme: 'bootstrap4',
-            width: '100%',
-            allowClear: true
+            // --- LÓGICA 2: ENCARGADO Y SUCURSAL ---
+            const $encargadoSelect = $('#encargado_selector');
+            const $sucursalSelect = $('#sucursal_id');
+
+            function actualizarSucursales(clienteId, seleccionadaId = null) {
+                $sucursalSelect.empty().append('<option value="">Seleccione una Sucursal...</option>');
+                if (clienteId) {
+                    const filtradas = window.sucursalesDisponibles.filter(suc => suc.cliente_empresa_id == clienteId);
+                    filtradas.forEach(suc => {
+                        const isSelected = (seleccionadaId && suc.id == seleccionadaId) ? 'selected' : '';
+                        $sucursalSelect.append(`<option value="${suc.id}" ${isSelected}>${suc.nombre}</option>`);
+                    });
+                }
+                $sucursalSelect.trigger('change.select2');
+            }
+
+            $encargadoSelect.on('change', function() {
+                actualizarSucursales($(this).val());
+            });
+
+            // --- INICIALIZACIÓN AUTOMÁTICA (MODO EDICIÓN) ---
+
+            // Cargar subcategorías si ya hay categoría
+            if ($catSelect.val()) {
+                actualizarSubcategorias($catSelect.val(), window.subcategoriaSeleccionada);
+            }
+
+            // Cargar sucursales si ya hay encargado
+            if ($encargadoSelect.val()) {
+                actualizarSucursales($encargadoSelect.val(), window.sucursalSeleccionada);
+            }
         });
-
-        // Evento: Al cambiar la categoría principal
-        $catSelect.on('change', function() {
-            const categoriaId = $(this).val();
-            actualizarSubcategorias(categoriaId);
-        });
-
-        // Lógica para modo EDICIÓN o Errores de Validación (Old Input)
-        const categoriaInicial = $catSelect.val();
-        if (categoriaInicial) {
-            // window.subcategoriaSeleccionada debe definirse en el form.blade.php
-            const subIdParaSeleccionar = window.subcategoriaSeleccionada || null;
-            actualizarSubcategorias(categoriaInicial, subIdParaSeleccionar);
-        }
-        
     });
-});
 </script>

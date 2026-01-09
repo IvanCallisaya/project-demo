@@ -12,20 +12,46 @@
     <h1>Productos</h1>
     <div class="card">
         <div class="card-header">
-            {{-- ... Tu código de búsqueda y botón Nuevo se mantiene igual ... --}}
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2">
-                <form method="GET" action="{{ route('producto.index') }}" class="d-flex flex-column flex-md-row gap-2 mb-2 mb-md-0 w-100 w-md-75">
-                    <input type="text" name="q" value="{{ request('q') }}" class="form-control flex-grow-1" placeholder="Buscar por nombre...">
+                <form method="GET" action="{{ route('producto.index') }}" class="d-flex flex-column flex-md-row gap-2 mb-2 mb-md-0 w-100 w-md-85">
+
+                    {{-- Input de búsqueda --}}
+                    <input type="text" name="q" value="{{ request('q') }}"
+                        class="form-control flex-grow-1"
+                        placeholder="Buscar por nombre, código o encargado...">
+
+                    {{-- Filtro de Estado --}}
+                    <select name="estado" class="form-control" style="min-width: 150px;" onchange="this.form.submit()">
+                        <option value="">Todos los Estados</option>
+                        <option value="{{ \App\Models\Producto::PENDIENTE }}" @selected(request('estado')==\App\Models\Producto::PENDIENTE)>Pendiente</option>
+                        <option value="{{ \App\Models\Producto::EN_CURSO }}" @selected(request('estado')==\App\Models\Producto::EN_CURSO)>En Curso</option>
+                        <option value="{{ \App\Models\Producto::OBSERVADO }}" @selected(request('estado')==\App\Models\Producto::OBSERVADO)>Observado</option>
+                        <option value="{{ \App\Models\Producto::FINALIZADO }}" @selected(request('estado')==\App\Models\Producto::FINALIZADO)>Finalizado</option>
+                    </select>
+
                     <div class="d-flex gap-2 flex-shrink-0">
+                        {{-- Selector de Paginación --}}
                         <select name="per_page" class="form-control" style="width: auto;" onchange="this.form.submit()">
                             @foreach([5,10,25,50] as $n)
                             <option value="{{ $n }}" @selected(request('per_page',10)==$n)>{{ $n }}</option>
                             @endforeach
                         </select>
-                        <button class="btn btn-secondary">Buscar</button>
+
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="fas fa-search"></i>
+                        </button>
+
+                        @if(request()->filled('q') || request()->filled('estado'))
+                        <a href="{{ route('producto.index') }}" class="btn btn-outline-danger" title="Limpiar filtros">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        @endif
                     </div>
                 </form>
-                <a href="{{ route('producto.create') }}" class="btn btn-primary ml-2">Nuevo</a>
+
+                <a href="{{ route('producto.create') }}" class="btn btn-primary ml-md-2">
+                    Nuevo
+                </a>
             </div>
         </div>
 

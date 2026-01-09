@@ -63,38 +63,38 @@
                                 <div class="dropdown-menu">
                                     <h6 class="dropdown-header" style="font-size: 0.75rem;">Cambiar Estado</h6>
 
-                                {{-- Opción SOLICITADO --}}
-                                <form action="{{ route('producto.cambiarEstado', $p->id) }}" method="POST">
-                                    @csrf @method('PATCH')
-                                    <input type="hidden" name="nuevo_estado" value="{{ App\Models\Producto::SOLICITADO }}">
-                                    <button type="submit" class="dropdown-item" style="font-size: 0.8rem; padding: 0.25rem 1rem;">Solicitado</button>
-                                </form>
+                                    {{-- Opción SOLICITADO --}}
+                                    <form action="{{ route('producto.cambiarEstado', $p->id) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="nuevo_estado" value="{{ App\Models\Producto::SOLICITADO }}">
+                                        <button type="submit" class="dropdown-item" style="font-size: 0.8rem; padding: 0.25rem 1rem;">Solicitado</button>
+                                    </form>
 
-                                {{-- Opción APROBADO --}}
-                                <form action="{{ route('producto.cambiarEstado', $p->id) }}" method="POST">
-                                    @csrf @method('PATCH')
-                                    <input type="hidden" name="nuevo_estado" value="{{ App\Models\Producto::APROBADO }}">
-                                    <button type="submit" class="dropdown-item" style="font-size: 0.8rem; padding: 0.25rem 1rem;">Aprobado</button>
-                                </form>
+                                    {{-- Opción APROBADO --}}
+                                    <form action="{{ route('producto.cambiarEstado', $p->id) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="nuevo_estado" value="{{ App\Models\Producto::APROBADO }}">
+                                        <button type="submit" class="dropdown-item" style="font-size: 0.8rem; padding: 0.25rem 1rem;">Aprobado</button>
+                                    </form>
 
-                                {{-- Opción RECHAZADO --}}
-                                <form action="{{ route('producto.cambiarEstado', $p->id) }}" method="POST">
-                                    @csrf @method('PATCH')
-                                    <input type="hidden" name="nuevo_estado" value="{{ App\Models\Producto::RECHAZADO }}">
-                                    <button type="submit" class="dropdown-item text-danger" style="font-size: 0.8rem; padding: 0.25rem 1rem;">Rechazado</button>
-                                </form>
-                            </div>
+                                    {{-- Opción RECHAZADO --}}
+                                    <form action="{{ route('producto.cambiarEstado', $p->id) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="nuevo_estado" value="{{ App\Models\Producto::RECHAZADO }}">
+                                        <button type="submit" class="dropdown-item text-danger" style="font-size: 0.8rem; padding: 0.25rem 1rem;">Rechazado</button>
+                                    </form>
+                                </div>
                         </td>
-                        <td class="text-center">
-                            {{-- Botón para ver/completar datos si es aprobado --}}
-                            <a href="{{ route('producto.edit', $p->id) }}" class="btn btn-sm btn-info text-white" title="Completar datos">
-                                <i class="fas fa-edit"></i>
-                            </a>
-
-                            <form action="{{ route('producto.destroy', $p->id) }}" method="POST" style="display:inline;">
+                        <td style="white-space:nowrap">
+                            <a href="{{ route('producto.edit',$p->id) }}" class="btn btn-sm btn-warning"><i class="fa-regular fa-pen-to-square" style="color: white;"></i></a>
+                            {{-- ... Formulario de eliminar ... --}}
+                            <form action="{{ route('producto.destroy',$p->id) }}"
+                                method="POST"
+                                style="display:inline">
                                 @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta solicitud?')">
-                                    <i class="fas fa-trash"></i>
+                                <button class="btn btn-sm btn-danger"
+                                    onclick="return confirm('¿Eliminar Producto?')">
+                                    <i class="fa-solid fa-trash-can" style="color:white"></i>
                                 </button>
                             </form>
                         </td>

@@ -1,5 +1,7 @@
-<h4 class="mb-3">Laboratorios y Servicios Contratados</h4>
-
+<h4 class="mb-3">Laboratorios registrados</h4>
+<a href="{{ route('laboratorio.create') }}" class="btn btn-primary flex-shrink-0 w-md-auto ml-2">
+    Nuevo
+</a>
 {{-- Aseguramos que la variable $labs contenga la colección paginada --}}
 @if($labs->count() > 0 || request('q'))
 
@@ -27,9 +29,7 @@
                     </div>
                 </form>
 
-                <a href="{{ route('laboratorio.create') }}" class="btn btn-primary flex-shrink-0 w-md-auto ml-2">
-                    Nuevo
-                </a>
+
             </div>
         </div>
 

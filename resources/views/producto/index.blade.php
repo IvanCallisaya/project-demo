@@ -114,7 +114,7 @@
                                     <div class="modal-content">
                                         <div class="modal-header bg-info text-white">
                                             <h5 class="modal-title">Subir Documento: {{ $p->nombre }}</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
                                         </div>
                                         <form id="uploadForm{{ $p->id }}" action="{{ route('documento.subir', $p->id) }}" method="POST" enctype="multipart/form-data">
                                             @csrf

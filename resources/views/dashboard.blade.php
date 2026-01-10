@@ -166,6 +166,29 @@
 
 </div>
 
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventModalLabel">Detalles del Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="eventDetailContent">
+                    <p><strong>Título:</strong> <span id="modalTitle"></span></p>
+                    <p><strong>Fecha:</strong> <span id="modalDate"></span></p>
+                    <hr>
+                    <div id="additionalDetails"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a href="#" id="modalUrl" class="btn btn-primary" target="_blank" style="display: none;">Ver más detalles</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 
@@ -212,10 +235,45 @@
             events: todosLosEventos,
 
             eventClick: function(info) {
-                if (info.event.url) {
-                    window.open(info.event.url);
-                    info.jsEvent.preventDefault();
+                info.jsEvent.preventDefault();
+
+                const title = info.event.title;
+                const date = info.event.start.toLocaleDateString();
+                const props = info.event.extendedProps;
+
+                // Rellenar campos básicos
+                document.getElementById('modalTitle').innerText = title;
+                document.getElementById('modalDate').innerText = date;
+
+                // Construir HTML de detalles adicionales
+                let extraHtml = `
+        <p><strong><i class="fas fa-tag"></i> Categoría:</strong> ${props.tipo || 'N/A'}</p>
+        <p><strong><i class="fas fa-building"></i> Empresa:</strong> <span class="text-primary">${props.empresa || 'N/A'}</span></p>
+        <p><strong><i class="fas fa-box"></i> Producto Relacionado:</strong> ${props.producto || 'N/A'} (${props.codigo_prod || ''})</p>
+    `;
+
+                if (props.estado) {
+                    extraHtml += `<p><strong><i class="fas fa-info-circle"></i> Estado del producto:</strong> ${props.estado}</p>`;
                 }
+
+                if (props.descripcion) {
+                    extraHtml += `<hr><p class="text-muted small">${props.descripcion}</p>`;
+                }
+
+                document.getElementById('additionalDetails').innerHTML = extraHtml;
+
+                // Manejo del botón de URL (Abrir documento o ver ficha)
+                const btnUrl = document.getElementById('modalUrl');
+                if (info.event.url) {
+                    btnUrl.href = info.event.url;
+                    btnUrl.innerHTML = props.tipo === 'Documento' ? '<i class="fas fa-file-pdf"></i> Ver Documento' : 'Ver Ficha';
+                    btnUrl.style.display = 'inline-block';
+                } else {
+                    btnUrl.style.display = 'none';
+                }
+
+                const myModal = new bootstrap.Modal(document.getElementById('eventModal'));
+                myModal.show();
             }
         });
 

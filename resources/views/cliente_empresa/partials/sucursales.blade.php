@@ -6,17 +6,19 @@
         </a>
     </div>
 
-    @if($sucursales->count() > 0 || request('q'))
+    {{-- Eliminamos el ID del form que captaba el JS --}}
     <div class="container-fluid p-0">
         <div class="card">
             <div class="card-header">
-                {{-- ID corregido para el JS --}}
-                <form id="sucursales-search-form" method="GET" action="{{ route('cliente.sucursales.index', $clienteEmpresa->id) }}" class="d-flex flex-column flex-md-row gap-2 w-100">
+                <form method="GET" action="{{ route('cliente.sucursales.index', $clienteEmpresa->id) }}" class="d-flex flex-column flex-md-row gap-2 w-100">
+                    {{-- CAMBIO VITAL: Indica al controlador qué pestaña refrescar --}}
+                    <input type="hidden" name="currentView" value="sucursales">
+
                     <input type="text" name="q" value="{{ request('q') }}" class="form-control flex-grow-1"
                         placeholder="Buscar por nombre de sucursal...">
 
                     <div class="d-flex gap-2 flex-shrink-0">
-                        <select name="per_page" class="form-control" style="width: auto;">
+                        <select name="per_page" class="form-control" style="width: auto;" onchange="this.form.submit()">
                             @foreach([5,10,25,50] as $n)
                             <option value="{{ $n }}" @selected(request('per_page', 10)==$n)>{{ $n }}</option>
                             @endforeach
@@ -53,10 +55,9 @@
                                 <a href="{{ route('sucursal.edit', $sucursal->id) }}" class="btn btn-sm btn-warning text-white">
                                     <i class="fa-regular fa-pen-to-square"></i>
                                 </a>
-
                                 <form action="{{ route('sucursal.destroy', $sucursal->id) }}" method="POST" style="display:inline;">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro de eliminar esta sucursal?')">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar sucursal?')">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </button>
                                 </form>
@@ -69,11 +70,13 @@
                         @endforelse
                     </tbody>
                 </table>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    {{-- Usamos la variable $sucursales para la paginación --}}
+                    <div>Mostrando {{ $sucursales->firstItem() ?? 0 }} - {{ $sucursales->lastItem() ?? 0 }} de {{ $sucursales->total() }}</div>
+                    <div>{{ $sucursales->links() }}</div>
+                </div>
             </div>
-            
+
         </div>
     </div>
-    @else
-    <div class="alert alert-info">Este cliente no tiene sucursales creadas.</div>
-    @endif
 </div>

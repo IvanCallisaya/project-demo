@@ -31,36 +31,49 @@ class DashboardController extends Controller
         $productosFinalizado = $productosPorEstado[Producto::FINALIZADO] ?? 0;
 
 
-    
 
-        // 3. Eventos para el Calendario (Plazos de Documentos)
-        $plazos = Documento::select('nombre', 'fecha_plazo_entrega', 'id')
+
+        $plazos = Documento::with(['producto.clienteEmpresa']) // Carga ansiosa de relaciones
+            ->select('nombre', 'fecha_plazo_entrega', 'id', 'url', 'producto_id')
             ->whereNotNull('fecha_plazo_entrega')
             ->get();
-
+        Log::info("Plazos encontrados: " . $plazos->toJson());
         $documentoEventos = $plazos->map(function ($doc) {
-            // Se recomienda usar el ID del cliente o el nombre del producto en el título.
-            // Para más información, carga ansiosa la relación laboratorioProducto.
             return [
                 'title' => 'Plazo: ' . $doc->nombre,
                 'start' => $doc->fecha_plazo_entrega,
-
-                'color' => '#dc3545', // Rojo para Plazo de Entrega
+                'color' => $doc->producto->estado_color, // Rojo
+                'extendedProps' => [
+                    'tipo'        => 'Documento',
+                    'descripcion' => 'Plazo límite de entrega del documento.',
+                    'estado'     => $doc->producto->estado_nombre ?? 'Sin Estado',
+                    'producto'    => $doc->producto->nombre ?? 'Sin producto',
+                    'empresa'     => $doc->producto->clienteEmpresa->nombre ?? 'Sin empresa',
+                    'codigo_prod' => $doc->producto->codigo_tramite
+                ],
+                'url'    => $doc->url,
             ];
         });
-        $productos = Producto::whereIn('estado', [Producto::SOLICITADO])->get();
+
+        $productos = Producto::with(['clienteEmpresa'])->whereIn('estado', [Producto::SOLICITADO])->get();
 
         $eventos = $productos->map(function ($p) {
-            // Calculamos el día después de la solicitud
             $fechaEntrega = \Carbon\Carbon::parse($p->fecha_solicitud)->addDay()->format('Y-m-d');
-
             return [
-                'title'           => $p->id_presolicitud .' '.$p->tramite . ' - ' . $p->estado_nombre,
-                'start'           => $fechaEntrega, // Ahora el evento inicia el día después
-                'end'             => $fechaEntrega, // Termina el mismo día
+                'title'           => $p->id_presolicitud . ' ' . $p->tramite,
+                'start'           => $fechaEntrega,
                 'backgroundColor' => $p->estado_color,
                 'borderColor'     => $p->estado_color,
-                'allDay'          => true
+                'allDay'          => true,
+                'extendedProps' => [
+                    'tipo' => 'Pre-solicitud',
+                    'estado' => $p->estado_nombre,
+                    'tramite' => $p->tramite,
+                    'producto'    => $p->nombre ?? 'Pre-solicitud no aprobada',
+                    'empresa'     => $p->clienteEmpresa->nombre ?? 'Sin empresa',
+                    'codigo_prod' => $p->id_presolicitud
+                ],
+                'url'             => route('producto.edit', $p->id),
             ];
         });
         return view('dashboard', [

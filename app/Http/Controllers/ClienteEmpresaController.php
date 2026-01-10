@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClienteEmpresa;
 use App\Models\Documento;
+use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
@@ -187,6 +188,7 @@ class ClienteEmpresaController extends Controller
         ]);
     }
 
+    // Sucursales
     public function sucursalesIndex(Request $request, ClienteEmpresa $clienteEmpresa)
     {
         $currentView = 'sucursales';
@@ -197,42 +199,40 @@ class ClienteEmpresaController extends Controller
             ->when($q, function ($query) use ($q) {
                 $query->where('nombre', 'like', "%$q%");
             })
-            ->withCount('productos')
             ->paginate($perPage)
             ->withQueryString();
-
-        if ($request->ajax()) {
-            return view('cliente_empresa.partials.sucursales', compact('clienteEmpresa', 'currentView', 'sucursales'));
-        }
 
         return view('cliente_empresa.show', compact('clienteEmpresa', 'currentView', 'sucursales'));
     }
 
+    // Productos
     public function productosIndex(Request $request, ClienteEmpresa $clienteEmpresa)
     {
         $currentView = 'productos';
-        $search = $request->get('q');
-        $estado = $request->get('estado');
-        $perPage = $request->get('per_page', 10);
+        $search = $request->input('q'); // Texto de búsqueda
+        $estadoId = $request->input('estado');
+        $perPage = $request->input('per_page', 10);
 
         $query = $clienteEmpresa->productos()->with(['subcategoria', 'laboratorioTitular']);
 
+        // 1. Filtro por Estado (Numérico)
+        if ($estadoId !== null && $estadoId !== '') {
+            $query->where('estado', (int)$estadoId);
+        }
+
+        // 2. Filtro de Búsqueda General (Nombre, Código o ID Presolicitud)
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
-                    ->orWhere('codigo', 'like', "%{$search}%");
-                if (is_numeric($search)) $q->orWhere('id_presolicitud', $search);
+                    ->orWhere('codigo', 'like', "%{$search}%")
+                    ->orWhere('id_presolicitud', 'like', "%{$search}%");
             });
         }
 
-        if ($estado !== null && $estado !== '') {
-            $query->where('estado', (int) $estado);
-        }
-        $productos = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+        $productos = $query->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
 
-        if ($request->ajax()) {
-            return view('cliente_empresa.partials.productos', compact('productos', 'clienteEmpresa', 'currentView'));
-        }
         return view('cliente_empresa.show', compact('clienteEmpresa', 'productos', 'currentView'));
     }
 }

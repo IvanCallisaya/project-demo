@@ -141,11 +141,9 @@
             {{-- Registro de actividad --}}
             @include('cliente_empresa.partials.documentos', ['documentos' => $clienteEmpresa->id])
             @elseif($currentView === 'sucursales')
-            {{-- Registro de actividad --}}
-            @include('cliente_empresa.partials.sucursales', ['sucursales' => $clienteEmpresa->sucursales])
+            @include('cliente_empresa.partials.sucursales', ['sucursales' => $sucursales])
             @elseif($currentView === 'productos')
-            {{-- Listado de Productos asociados al cliente --}}
-            @include('cliente_empresa.partials.productos', ['productos' => $clienteEmpresa->productos])
+            @include('cliente_empresa.partials.productos', ['productos' => $productos])
             @else
             <div class="alert alert-info">Contenido no definido para esta vista.</div>
             @endif

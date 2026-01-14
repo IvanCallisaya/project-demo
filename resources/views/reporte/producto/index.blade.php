@@ -83,7 +83,7 @@
                                     {{ $paises->isEmpty() ? 'No registrado' : $paises->implode(' / ') }}
                                 </span>
                             </td>
-                            <td>{{ $p->clienteEmpresa->nombre_empresa ?? 'N/A' }}</td>
+                            <td>{{ $p->clienteEmpresa->nombre ?? 'N/A' }}</td>
                         </tr>
                         @empty
                         <tr>
@@ -92,6 +92,18 @@
                         @endforelse
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                        <p class="small text-muted">
+                            Mostrando {{ $productos->firstItem() }} a {{ $productos->lastItem() }}
+                            de {{ $productos->total() }} resultados
+                        </p>
+                    </div>
+                    <div>
+                        {{-- Esto genera los botones --}}
+                        {{ $productos->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
             </div>
 
             {{-- Paginación --}}

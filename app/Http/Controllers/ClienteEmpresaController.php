@@ -7,6 +7,7 @@ use App\Models\Documento;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class ClienteEmpresaController extends Controller
@@ -234,5 +235,29 @@ class ClienteEmpresaController extends Controller
             ->withQueryString();
 
         return view('cliente_empresa.show', compact('clienteEmpresa', 'productos', 'currentView'));
+    }
+    public function enviarNotificacionRevision(Request $request)
+    {
+        $request->validate([
+            'destino' => 'required|email',
+            'mensaje' => 'required',
+        ]);
+
+        try {
+            // Consumimos tu servicio de correo
+            $response = Http::post(url('http://109.199.102.106:3000/api/send-mail'), [
+                'destino' => $request->destino,
+                'mensaje' => $request->mensaje,
+                // Si tu API soporta 'cc', lo agregas aquí
+            ]);
+
+            if ($response->successful()) {
+                return response()->json(['success' => true, 'message' => 'Notificación enviada.']);
+            }
+
+            return response()->json(['success' => false, 'message' => 'Error al enviar'], 500);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
     }
 }

@@ -45,12 +45,15 @@ Route::middleware('auth')->group(function () {
     Route::resource('subcategoria', SubCategoriaController::class);
     Route::resource('sucursal', SucursalController::class);
     Route::get('reporte/producto', [ProductoReporteController::class, 'index'])->name('reporte.producto');
+    Route::get('reporte/presolicitud', [ProductoReporteController::class, 'indexPresolicitud'])->name('reporte.presolicitud');
+    Route::get('/reportes/documentos', [ProductoReporteController::class, 'indexDocumento'])
+        ->name('reporte.documento.index');
     Route::prefix('configuracion')->group(function () {
         Route::get('/documento', [DocumentoController::class, 'index'])->name('configuracion.documento');
     });
-    Route::prefix('laboratorio/{laboratorio}/producto')->group(function () {
-
-    });
+    Route::prefix('laboratorio/{laboratorio}/producto')->group(function () {});
+    Route::post('/empresas/enviar-notificacion', [ClienteEmpresaController::class, 'enviarNotificacionRevision'])
+        ->name('cliente_empresa.notificar');
 
     Route::prefix('cliente_empresa/{clienteEmpresa}')->name('cliente.')->group(function () {
         // 3. Laboratorios

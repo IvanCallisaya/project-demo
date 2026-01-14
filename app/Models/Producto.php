@@ -98,6 +98,14 @@ class Producto extends Model
             'Registro zoosanitario de productos de uso veterinario (homeopáticos y otros)',
         ];
     }
+    public static function getEstadosPreSolicitud()
+    {
+        return [
+            self::SOLICITADO => 'Solicitado',
+            self::APROBADO   => 'Aprobado',
+            self::RECHAZADO  => 'Rechazado',
+        ];
+    }
 
     // Relaciones
     public function sucursal()

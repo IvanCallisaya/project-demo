@@ -58,21 +58,39 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('reporte.producto') }}" class="nav-link {{ request()->routeIs('reporte.producto.index') ? 'active' : '' }}">
+                            <a href="{{ route('reporte.producto') }}" class="nav-link {{ request()->routeIs('reporte.producto') ? 'active' : '' }}">
                                 <i class="fas fa-file-medical nav-icon"></i>
                                 <p>Producto Veterinario</p>
                             </a>
                         </li>
                     </ul>
-                </li>
-                @role('admin')
-                <li class="nav-item">
-                    <a href="{{ route('users.index') }}" class="nav-link">
-                        <i class="nav-icon fas fa-users"></i>
-                        <p>Usuarios</p>
-                    </a>
-                </li>
-                @endrole
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('reporte.presolicitud') }}" class="nav-link {{ request()->routeIs('reporte.presolicitud') ? 'active' : '' }}">
+                                <i class="fas fa-file-medical nav-icon"></i>
+                                <p>PreSolicitud</p>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('reporte.documento.index') }}" class="nav-link {{ request()->routeIs('reporte.documento.index') ? 'active' : '' }}">
+                                <i class="fas fa-file-medical nav-icon"></i>
+                                <p>Documento</p>
+                            </a>
+                        </li>
+                    </ul>
+            </ul>
+
+            </li>
+            @role('admin')
+            <li class="nav-item">
+                <a href="{{ route('users.index') }}" class="nav-link">
+                    <i class="nav-icon fas fa-users"></i>
+                    <p>Usuarios</p>
+                </a>
+            </li>
+            @endrole
 
             </ul>
         </nav>

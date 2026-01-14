@@ -31,6 +31,10 @@
                         class="btn btn-warning btn-lg shadow-sm px-4">
                         <i class="fa-regular fa-pen-to-square me-2"></i> Editar Cliente
                     </a>
+                    <button type="button" class="btn btn-info"
+                        onclick="abrirModalCorreo('{{ $clienteEmpresa->email_principal }}', '{{ $clienteEmpresa->url_carpeta_drive }}', '{{ $clienteEmpresa->nombre_comercial }}')">
+                        <i class="fas fa-paper-plane"></i> Notificar Revisión
+                    </button>
                 </div>
 
                 <hr class="my-3 opacity-50">
@@ -151,54 +155,114 @@
 
     </div>
 </div>
+<div class="modal fade" id="modalNotificar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Enviar Notificación de Revisión</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Destinatario:</label>
+                    <input type="email" id="emailDestino" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Mensaje (puedes editarlo):</label>
+                    <textarea id="textoCorreo" class="form-control" rows="6"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="procesarEnvio()" class="btn btn-primary">Enviar Ahora</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('js')
 
 <script>
-    $(document).ready(function() {
+    // Definimos las funciones FUERA del document.ready para que sean globales
+    window.abrirModalCorreo = function(email, urlDrive, nombreEmpresa) {
+        console.log("Abriendo modal para:", email); // Para debug
 
-        function loadTabContent(url, containerId) {
-            $.ajax({
-                url: url,
-                type: 'GET',
-                beforeSend: function() {
-                    $(containerId).css('opacity', '0.5');
+        document.getElementById('emailDestino').value = email;
+
+        const mensaje = `Estimados ${nombreEmpresa},\n\n` +
+            `Se han subido nuevos documentos para su revisión. ` +
+            `Puede visualizarlos en el siguiente enlace de Google Drive:\n\n` +
+            `${urlDrive || 'Enlace no disponible'}\n\n` +
+            `Quedamos atentos a sus comentarios.`;
+
+        document.getElementById('textoCorreo').value = mensaje;
+
+        // Usamos Vanilla JS para el modal (Evita errores de jQuery/Bootstrap)
+        const modalElement = document.getElementById('modalNotificar');
+        const myModal = new bootstrap.Modal(modalElement);
+        myModal.show();
+    };
+
+    window.procesarEnvio = async function() {
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = "Enviando...";
+
+        const data = {
+            destino: document.getElementById('emailDestino').value,
+            mensaje: document.getElementById('textoCorreo').value,
+            _token: '{{ csrf_token() }}'
+        };
+
+        try {
+            const res = await fetch('/empresas/enviar-notificacion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 },
-                success: function(response) {
-                    success: function(response) {
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                alert("✅ Correo enviado con éxito");
+                const modalElement = document.getElementById('modalNotificar');
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                modalInstance.hide();
+            } else {
+                alert("❌ Error: " + (result.message || "Error desconocido"));
+            }
+        } catch (error) {
+            alert("❌ Error de conexión: " + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Enviar Ahora";
+        }
+    };
+
+    // Lógica AJAX (Solo si jQuery está cargado)
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.jQuery) {
+            $(document).on('submit', 'form[id$="-search-form"]', function(e) {
+                e.preventDefault();
+                const form = $(this);
+                const containerId = '#' + form.closest('[id$="-tab-content"]').attr('id');
+                const url = form.attr('action') + '?' + form.serialize();
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    beforeSend: () => $(containerId).css('opacity', '0.5'),
+                    success: (response) => {
                         $(containerId).html(response).css('opacity', '1');
                         history.pushState(null, '', url);
+                    },
+                    error: () => {
+                        $(containerId).css('opacity', '1');
+                        alert('Error al procesar la solicitud.');
                     }
-                },
-                error: function() {
-                    $(containerId).css('opacity', '1');
-                    alert('Error al procesar la solicitud.');
-                }
+                });
             });
         }
-
-        // Escuchar TODOS los formularios de búsqueda (productos, sucursales, documentos, laboratorios)
-        $(document).on('submit', 'form[id$="-search-form"]', function(e) {
-            e.preventDefault();
-            var form = $(this);
-            var containerId = '#' + form.closest('[id$="-tab-content"]').attr('id');
-            var url = form.attr('action') + '?' + form.serialize();
-            loadTabContent(url, containerId);
-        });
-
-        // Escuchar cambios en selects de paginación o estado
-        $(document).on('change', 'form[id$="-search-form"] select', function() {
-            $(this).closest('form').submit();
-        });
-
-        // Escuchar clicks en paginación
-        $(document).on('click', '.pagination a', function(e) {
-            e.preventDefault();
-            var url = $(this).attr('href');
-            var containerId = '#' + $(this).closest('[id$="-tab-content"]').attr('id');
-            loadTabContent(url, containerId);
-        });
     });
 </script>
 @endpush

@@ -48,28 +48,30 @@ class DocumentoController extends Controller
         try {
             $request->validate([
                 'documento' => 'required|file|max:20480',
+                // Es buena práctica validar también las fechas si las esperas
+                'fecha_plazo_entrega' => 'nullable|date',
+                'fecha_recojo' => 'nullable|date',
             ]);
 
             $producto = Producto::with(['clienteEmpresa', 'sucursal'])
                 ->findOrFail($productoId);
 
             $file = $request->file('documento');
-            Log::info("Subiendo documento para el producto ID: " . $producto);
-            $response = Http::asMultipart()->post(
-                'http://109.199.102.106:3000/api/upload-document',
-                [
-                    'cliente'     => $producto->clienteEmpresa->nombre,
+
+            // MODIFICACIÓN AQUÍ: Usamos attach para el archivo y post para los campos
+            $response = Http::asMultipart()
+                ->attach(
+                    'archivo',                       // Nombre del campo que espera tu API Node
+                    fopen($file->path(), 'r'),      // Contenido del archivo
+                    $file->getClientOriginalName()  // Nombre original
+                )
+                ->post('http://109.199.102.106:3000/api/upload-document', [
+                    'cliente'     => $producto->clienteEmpresa->nombre_comercial ?? $producto->clienteEmpresa->nombre,
                     'laboratorio' => $producto->sucursal->nombre,
                     'producto'    => $producto->nombre,
-                    'archivo'     => [
-                        'name'     => 'archivo',
-                        'contents' => fopen($file->path(), 'r'),
-                        'filename' => $file->getClientOriginalName(),
-                    ],
-                ]
-            );
+                ]);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Error en API Node',
@@ -78,17 +80,21 @@ class DocumentoController extends Controller
             }
 
             $data = $response->json();
-        
+
+            // Actualizamos la URL de la carpeta en el cliente si la API la devuelve
             $producto->clienteEmpresa->update([
-                'url_carpeta_drive' => $data['url_carpeta_cliente'] ?? null,
+                'url_carpeta_drive' => $data['url_carpeta_cliente'] ?? $producto->clienteEmpresa->url_carpeta_drive,
             ]);
 
+            // Creamos el registro del documento
+            // Esto disparará automáticamente el Observer para Google Calendar
             Documento::create([
                 'producto_id'         => $productoId,
-                'nombre'              => $data['nombre_archivo'],
-                'url'                 => $data['url_drive'],
+                'nombre'              => $data['nombre_archivo'] ?? $file->getClientOriginalName(),
+                'url'                 => $data['url_drive'] ?? null,
                 'fecha_plazo_entrega' => $request->fecha_plazo_entrega,
                 'fecha_recojo'        => $request->fecha_recojo,
+                'empresa_id'          => auth()->user()->empresa_id,
             ]);
 
             return response()->json([

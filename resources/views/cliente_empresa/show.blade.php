@@ -32,7 +32,7 @@
                         <i class="fa-regular fa-pen-to-square me-2"></i> Editar Cliente
                     </a>
                     <button type="button" class="btn btn-info"
-                        onclick="abrirModalCorreo('{{ $clienteEmpresa->email_principal }}', '{{ $clienteEmpresa->url_carpeta_drive }}', '{{ $clienteEmpresa->nombre_comercial }}')">
+                        onclick="abrirModalCorreo('{{ $clienteEmpresa->email_principal }}', '{{ $clienteEmpresa->url_carpeta_drive }}', '{{ $clienteEmpresa->nombre }}')">
                         <i class="fas fa-paper-plane"></i> Notificar Revisión
                     </button>
                 </div>

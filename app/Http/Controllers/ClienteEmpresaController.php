@@ -238,15 +238,6 @@ class ClienteEmpresaController extends Controller
     }
     public function enviarNotificacionRevision(Request $request)
     {
-
-        $fp = @fsockopen('127.0.0.1', 3000, $errno, $errstr, 5);
-        if (!$fp) {
-            return response()->json([
-                'error' => "Apache no puede ver el puerto 3000. Error: $errstr ($errno)",
-                'pista' => "Verifica que el firewall permita trafico LOCAL al puerto 3000"
-            ], 500);
-        }
-        fclose($fp);
         $request->validate([
             'destino' => 'required|email',
             'mensaje' => 'required',

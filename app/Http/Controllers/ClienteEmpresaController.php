@@ -244,27 +244,24 @@ class ClienteEmpresaController extends Controller
         ]);
 
         try {
-            // 1. URL Correcta: Puerto 3000 y ruta de Zeptomail
-            $url = 'http://109.199.102.106:3000/api/zeptomail/send';
+            // USAR 127.0.0.1 para evitar que Apache intente interceptar la IP pública
+            $url = 'http://127.0.0.1:3000/api/zeptomail/send';
 
-            // 2. Formato Correcto: 'to', 'subject', 'message' (como pide tu Node)
             $response = Http::post($url, [
                 'to'      => $request->destino,
-                'subject' => 'Notificación de Revisión de Documento',
-                'message' => $this->formatearMensajeHTML($request->mensaje),
+                'subject' => 'Notificación de Revisión',
+                // Reutilizamos el diseño HTML que ya tienes en el comando
+                'message' => $this->generarPlantillaHTML($request->mensaje),
             ]);
 
             if ($response->successful()) {
-                return response()->json(['success' => true, 'message' => 'Notificación enviada correctamente vía ZeptoMail.']);
+                return response()->json(['success' => true]);
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Node.js respondió con error',
-                'details' => $response->body()
-            ], $response->status());
+            // Si falla, vemos qué dijo Node
+            return response()->json(['error' => $response->body()], 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 

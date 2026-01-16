@@ -184,7 +184,7 @@
 <script>
     // Definimos las funciones FUERA del document.ready para que sean globales
     window.abrirModalCorreo = function(email, urlDrive, nombreEmpresa) {
-        console.log("Abriendo modal para:", email); // Para debug
+    
 
         document.getElementById('emailDestino').value = email;
 
@@ -203,6 +203,7 @@
     };
 
     window.procesarEnvio = async function() {
+        const urlNotificacion = "{{ url('empresas/enviar-notificacion') }}";
         const btn = event.target;
         btn.disabled = true;
         btn.textContent = "Enviando...";
@@ -214,7 +215,7 @@
         };
 
         try {
-            const res = await fetch('/empresas/enviar-notificacion', {
+            const res = await fetch(urlNotificacion, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

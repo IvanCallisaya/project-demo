@@ -10,6 +10,7 @@ use App\Models\ProductoBitacora;
 use App\Models\SubCategoria;
 use App\Models\Sucursal;
 use App\Models\UnidadMedida;
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -211,17 +212,33 @@ class ProductoController extends Controller
             'laboratorio_titular_id'    => 'nullable|exists:laboratorio,id',
             'laboratorio_produccion_id' => 'nullable|exists:laboratorio,id',
             'codigo_tramite'            => 'nullable|string|max:100',
+            'fecha_registro'            => 'nullable|date',
         ]);
+
+        // Lógica para calcular la fecha de vencimiento (5 años menos 1 día)
+        if ($r->filled('fecha_registro')) {
+            $fechaRegistro = Carbon::parse($r->fecha_registro);
+
+            // Sumamos 5 años y restamos 1 día para cumplir con tu correlación:
+            // 17/06/2022 -> 16/06/2027
+            $data['fecha_vencimiento'] = $fechaRegistro->addYears(5)->subDay()->format('Y-m-d');
+        }
+
         ProductoBitacora::create([
             'producto_id' => $producto->id,
             'user_id' => auth()->id(),
             'evento' => 'Producto Actualizado',
-            'estado_nuevo' => $producto->estado,
-            'observacion' => 'Los datos del producto fueron actualizados.'
+            'estado_anterior' => 'Se mantiene estado',
+            'estado_nuevo' => Producto::getNombreEstado($producto->estado),
+            'observacion' => 'Los datos del producto fueron actualizados y se calculó el vencimiento.'
         ]);
-        Log::info("Actualizando producto ID: {}" . $producto->id);
+
+        Log::info("Actualizando producto ID: " . $producto->id);
+
+        // Actualizamos el producto con el array $data que ahora incluye fecha_vencimiento
         $producto->update($data);
-        return redirect()->route('producto.index')->with('success', 'Producto actualizado.');
+
+        return redirect()->route('producto.index')->with('success', 'Producto actualizado con éxito.');
     }
 
     public function destroy(Producto $producto)

@@ -25,7 +25,9 @@ return new class extends Migration
             $table->string('codigo_tramite')->nullable();;
             $table->string('nombre')->nullable();
             $table->foreignId('subcategoria_id')->nullable()->constrained('subcategoria');
-            $table->string('codigo')->nullable(); //solo tiene cuando se finaliza el tramite del producto
+            $table->string('codigo')->nullable();
+            $table->date('fecha_registro')->nullable();
+            $table->date('fecha_vencimiento')->nullable();
             $table->foreignId('empresa_id')->constrained('empresa');
             $table->timestamps();
         });

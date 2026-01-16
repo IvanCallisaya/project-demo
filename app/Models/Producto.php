@@ -24,7 +24,9 @@ class Producto extends Model
         'nombre',
         'subcategoria_id',
         'codigo',
-        'empresa_id'
+        'empresa_id',
+        'fecha_registro',
+        'fecha_vencimiento',
     ];
 
     // ESTADOS PRE-SOLICITUD

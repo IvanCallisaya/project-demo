@@ -244,20 +244,48 @@ class ClienteEmpresaController extends Controller
         ]);
 
         try {
-            // Consumimos tu servicio de correo
-            $response = Http::post(url('http://109.199.102.106:3000/api/send-mail'), [
-                'destino' => $request->destino,
-                'mensaje' => $request->mensaje,
-                // Si tu API soporta 'cc', lo agregas aquí
+            // 1. URL Correcta: Puerto 3000 y ruta de Zeptomail
+            $url = 'http://109.199.102.106:3000/api/zeptomail/send';
+
+            // 2. Formato Correcto: 'to', 'subject', 'message' (como pide tu Node)
+            $response = Http::post($url, [
+                'to'      => $request->destino,
+                'subject' => 'Notificación de Revisión de Documento',
+                'message' => $this->formatearMensajeHTML($request->mensaje),
             ]);
 
             if ($response->successful()) {
-                return response()->json(['success' => true, 'message' => 'Notificación enviada.']);
+                return response()->json(['success' => true, 'message' => 'Notificación enviada correctamente vía ZeptoMail.']);
             }
 
-            return response()->json(['success' => false, 'message' => 'Error al enviar'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Node.js respondió con error',
+                'details' => $response->body()
+            ], $response->status());
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Función auxiliar para darle el diseño bonito que creamos antes
+     */
+    private function formatearMensajeHTML($texto)
+    {
+        return "
+    <div style='font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 20px;'>
+        <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; border: 1px solid #e1e1e1;'>
+            <div style='background-color: #6c2bd9; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;'>
+                <h1 style='color: #ffffff; margin: 0; font-size: 20px;'>Notificación de Revisión</h1>
+            </div>
+            <div style='padding: 30px;'>
+                <p style='font-size: 16px; color: #333;'>Se ha generado una nueva actualización en su proceso:</p>
+                <div style='background-color: #f9f9f9; border-left: 4px solid #6c2bd9; padding: 15px; margin: 20px 0;'>
+                    <p style='margin: 0; font-size: 15px; color: #555;'>$texto</p>
+                </div>
+            </div>
+        </div>
+    </div>";
     }
 }

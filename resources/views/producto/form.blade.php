@@ -82,24 +82,32 @@
     </div>
 
     {{-- Código Trámite --}}
-    <div class="col-md-4 mb-3">
+    <div class="col-md-6 mb-3">
         <label>Código de Trámite</label>
         <input type="text" name="codigo_tramite" class="form-control" value="{{ old('codigo_tramite', $producto->codigo_tramite ?? '') }}">
     </div>
 
     {{-- Código Producto --}}
-    <div class="col-md-4 mb-3">
+    <div class="col-md-6 mb-3">
         <label>Código Producto (Interno)</label>
         <input type="text" name="codigo" class="form-control" value="{{ old('codigo', $producto->codigo ?? '') }}">
     </div>
 
     {{-- Fecha Inicio --}}
-    <div class="col-md-4">
+    <div class="col-md-6 mb-3">
         <div class="form-group">
             <label>Fecha y Hora de Inicio *</label>
             <input type="datetime-local" name="fecha_inicio" class="form-control"
                 value="{{ old('fecha_inicio', isset($producto->fecha_inicio) ? \Carbon\Carbon::parse($producto->fecha_inicio)->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}"
                 required>
         </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Fecha Registro</label>
+        <input type="date" 
+            name="fecha_registro" 
+            class="form-control" 
+            value="{{ old('fecha_registro', isset($producto->fecha_registro) ? \Carbon\Carbon::parse($producto->fecha_registro)->format('Y-m-d') : date('Y-m-d')) }}" 
+            required>
     </div>
 </div>

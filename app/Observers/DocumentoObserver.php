@@ -25,9 +25,10 @@ class DocumentoObserver
             $client = new Client();
             $client->setAuthConfig(storage_path('app/google/service-account.json'));
             $client->addScope(Calendar::CALENDAR);
-            
+            //eliminar al subir
+            $client->setHttpClient(new \GuzzleHttp\Client(['verify' => false]));
             $service = new Calendar($client);
-            $calendarId = 'ivanedcali@gmail.com'; // ID del calendario destino
+            $calendarId = 'contact@prestafy.net'; // ID del calendario destino
 
             $producto = $documento->producto;
             $empresa = $producto->clienteEmpresa->nombre_comercial ?? 'Cliente';

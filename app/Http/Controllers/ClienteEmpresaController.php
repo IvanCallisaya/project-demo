@@ -238,6 +238,15 @@ class ClienteEmpresaController extends Controller
     }
     public function enviarNotificacionRevision(Request $request)
     {
+
+        $fp = @fsockopen('127.0.0.1', 3000, $errno, $errstr, 5);
+        if (!$fp) {
+            return response()->json([
+                'error' => "Apache no puede ver el puerto 3000. Error: $errstr ($errno)",
+                'pista' => "Verifica que el firewall permita trafico LOCAL al puerto 3000"
+            ], 500);
+        }
+        fclose($fp);
         $request->validate([
             'destino' => 'required|email',
             'mensaje' => 'required',
@@ -247,11 +256,11 @@ class ClienteEmpresaController extends Controller
             // USAR 127.0.0.1 para evitar que Apache intente interceptar la IP pública
             $url = 'http://127.0.0.1:3000/api/zeptomail/send';
 
-            $response = Http::post($url, [
+            $response = Http::post(env('ZEPTOMAIL_NODE_URL'), [
                 'to'      => $request->destino,
                 'subject' => 'Notificación de Revisión',
                 // Reutilizamos el diseño HTML que ya tienes en el comando
-                'message' => $this->generarPlantillaHTML($request->mensaje),
+                'message' => $this->formatearMensajeHTML($request->mensaje),
             ]);
 
             if ($response->successful()) {
